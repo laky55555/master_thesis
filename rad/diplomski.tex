@@ -925,7 +925,7 @@ Važno je još napomenuti da unutar datoteke ulaza svaka linija predstavlja jeda
 \end{center}
 \end{figure}
 
-\lstinputlisting[language=python, label={code:oofem_input_file}, caption={Primjer datoteke ulaza za OOFEM}]{beam2d_1.in}
+\lstinputlisting[language=python, label={code:oofem_input_file}, caption={Primjer datoteke ulaza za OOFEM}]{codes/beam2d_1.in}
 
 
 \section{Korištenje OOFEM alata iz Pythona}
@@ -995,7 +995,7 @@ plt.show()
 
 Sama mreža čvorova, kao i svi ostali elementi analize mogu se i individualno konstruirati što ćemo pokazati na idućem primjeru koda. Kod usko prati sve navedene korake iz prijašnjega potpoglavlja \ref{poglavlje:koristenje_oofema} što će biti jasno vidljivo, i modelira primjer sa slike \ref{fig:Structure_to_analyze} te je analogon ulaznoj datoteci \ref{code:oofem_input_file} za analizu pomoću OOFEM-a putem komandne linije. Nakon same analize moguće je, kao i u prošlom primjeru konstruirati razne vizualizacije što prepuštamo čitateljima radi toga da sam kod bude što čišći i relevantniji samoj zadaći koja je opisivanje korištenja \textit{liboofem-a} radi analize konačnih elemenata.
 
-\lstinputlisting[language=python, label={code:python_oofem_full_example}, caption={Korištenje OOFEM putem Python-ovog sučelja}]{uredeni_primjer.py}
+\lstinputlisting[language=python, label={code:python_oofem_full_example}, caption={Korištenje OOFEM putem Python-ovog sučelja}]{codes/uredeni_primjer.py}
 
 Važno je još napomenuti da omotač oko C++ koda programa OOFEM ne obuhvaća sve moguće značajke u jednakom obimu. Tako primjerice iz gornjeg koda vidjeli smo da se može koristiti konačni element greda u dvodimenizionalnom prostoru (\textit{liboofem.beam2d}), ali radi lakšeg prototipiranja i bolje apstrakcije koda ostali konačni elementi nisu tako definirani. Definiciju \textit{beam2d} konačnog elementa može se pronaći u datoteci \textit{oofemlib.cpp} na adresi \cite{oofemlib_source} između 1544-te i 1585-e linije koji izgleda ovako:
 
@@ -1083,7 +1083,7 @@ OOFEM pruža nekoliko načina kako dobivene rezultate prikazati. Opisat ćemo 3 
         \label{fig:oofeg_example}
         \end{center}
         \end{figure}
-    \item ParaView - OOFEM omogućava na jednostavan način pretvorbu izlazni podataka u VTK format što omogućava vizualizaciju putem softvera treće strane poput ParaView-a i MayaVi-a. Dobra strana toga je to što su takvi alati specijalizirani za vizualizaciju te omogućuje znatno više značajki te se u odnosu na OOFEG i dalje razvijaju i napreduju. Kao što smo naveli u potpoglavlju \ref{poglavlje:koristenje_oofema} pod rednim brojem četiri, za izvoz podataka u VTK format dovoljno je dodati jednu liniju. Jednako tako dodavanje samo jedne linije u Python kod rezultati će se ispisati u datoteku i u VTK formatu. Nakon završetka analize, konstruirati će se datoteke s informacijama za svaki korak koje se uvezu u našem slučaju u ParaView. Nadalje, za uvesti podatke u ParaView potrebno je samo označiti datoteku koja ima ekstenziju \textit{.pvd} i koja ima zapisane putanje do datoteka s podacima o rezultatima analize. Na slici \ref{fig:paraview_example} dajemo primjer strukture vizualizirane pomoću ParaView softvera.
+    \item ParaView - OOFEM omogućava na jednostavan način pretvorbu izlazni podataka u VTK format što omogućava vizualizaciju putem softvera treće strane poput ParaView-a i MayaVi-a. Dobra strana toga je to što su takvi alati specijalizirani za vizualizaciju te omogućuje znatno više značajki te se u odnosu na OOFEG i dalje razvijaju i napreduju. Kao što smo naveli u potpoglavlju \ref{poglavlje:koristenje_oofema} pod rednim brojem četiri, za izvoz podataka u VTK format dovoljno je dodati jednu liniju. Jednako tako dodavanje samo jedne linije u Python kod rezultati će se ispisati u datoteku i u VTK formatu. Nakon završetka analize, konstruirati će se datoteke s informacijama za svaki korak koje se uvezu u našem slučaju u ParaView. Nadalje, za uvesti podatke u ParaView potrebno je samo označiti datoteku koja ima ekstenziju \textit{.pvd} i koja ima zapisane putanje do datoteka s podacima o rezultatima analize. Na slici \ref{fig:paraview_example} dajemo primjer strukture grede I profila vizualizirane pomoću ParaView softvera. Mreža grede je konstruirana u Salome programu i preuzeta sa stranice \cite{oofem-web}. Datoteka je potom pomoću OOFEM konvertera ulazne datoteke pretvorena u OOFEM-u čitljiv format. Mreža se sastoji od 6931 čvora i 1188 kvadratnih elemenata. Analiza te ulazne strukture bez nikakvih optimizacija trajala je oko 90 minuta na računalu s i5 procesorom da bi se po završetku konstruirala datoteke potrebne ParaViewu za vizualizaciju.
         \begin{figure}[h!t]
         \begin{center}
         \includegraphics[scale=0.2]{pictures/chapter_oofem/paraview_beam_bending_full.png}
@@ -1100,139 +1100,42 @@ Iz svega navedenoga preporuka za vizualizaciju jest koristiti već postojeće al
 U ovom poglavlju pokazati ćemo kako riješiti zadatak \ref{fig:problem__not_noted} koji smo ručno riješili u poglavlju \ref{primjer_zadatka_i_rjesenja}. Zadatak ćemo riješiti na 3 načina pomoću OOFEM-a te usporediti rezultate u odnosu na ručno rješavanje. Prvo ćemo sastaviti datoteku ulaza s potpunim problemom te pokrenuti OOFEM s njome. Za drugi način koristiti ćemo Python i pomoću njega učitati ulaznu datoteku koju smo koristili i u prvom načinu. Za treći način rješavanja u potpunosti ćemo definirati ulazne podatke u Python-u i dobiti rješenje. Za vizualizaciju rješenja koristiti ćemo ParaView i vizualizaciju pomoću Python-a.
 
 \section{Rješavanje učitavanje datoteke u OOFEM putem terminala}
+Kao što smo već pokazali na na prijašnjim primjerima rješavanjem putem učitavanje iz datoteke temelji se na izradi valjane datoteke. Osim ručne izrade u praksi češće izrađuje model pomoću programa poput Salome koji se izveze u izlaznu datoteku univerzalnog formata (.UNV) za koji OOFEM ima prikladan program za pretvorbu u njemu razumljiv oblik. Kako je naš problem bio dovoljno jednostavan upisujemo ga ručno i dobivamo iduću datoteku.
+
+\lstinputlisting[language=python, label={code:zadatak_terminal}, caption={Datoteka ulaza za zadatak sa slike \ref{fig:problem__not_noted}}]{codes/zadatak_terminal.in}
+
+\section{Korištenje Pythona za učitavanje datoteke ulaza}
+Slično kao kod rješavanja pomoću pokretanja programa iz terminala izgleda korištenje Pythona za učitavanje datoteke ulaza kao što je i bilo prikazano u \ref{code:python_oofem_from_file}. Python skripta za rješavanje na ovaj način izgleda ovako: 
+
+\lstinputlisting[language=python, label={code:zadatak_python_file}, caption={Python program za rješavanje zadatak sa slike \ref{fig:problem__not_noted} čitanjem datoteke ulaza}]{codes/zadatak_python_file.py}
+
+\section{Korištenje Pythona za definiranje i rješavanje zadatka}
+Analogno s primjerom \ref{code:python_oofem_full_example} postavljanje i rješavanje zadatka \ref{fig:problem__not_noted} putem Pythona konstruira se iduća sktipta:
+
+\lstinputlisting[language=python, label={code:zadatak_python_full}, caption={Python program za rješavanje zadatak sa slike \ref{fig:problem__not_noted} inicijalizacijiom svih elemenata putem liboofem biblioteke}]{codes/zadatak_python_full.py}
 
 
+\section{Dodatne mogućnosti biblioteke liboofem}
+Kao što smo bili napomenuli \textit{liboofem} u teoriji pruža mogućnost dohvaćanja svih objekata OOFEM-a iz C++-a putem Pythona. U nastavku dat ćemo jedan takav primjer i opis kako dohvatiti neke od zanimljivijih podataka.
 
+\lstinputlisting[language=python, label={code:zadatak_python_file_playground}, caption={Python program za rješavanje zadatak sa slike \ref{fig:problem__not_noted} zajedno s kodom koji ispituje elemente analize i vraća dodatne informacije o njima}]{codes/zadatak_python_file_playground.py}
 
-
-
-
-\section{Problem}
-p
-
-\section{Generiranje ulaznih podataka}
-p
-
-\section{Rješavanje problema}
-r
 
 \section{Vizualizacija dobivenih rezultata}
-v
+U ovom dijelu prikazat ćemo jedan primjer kako se modeliranje može provoditi, to jest napisat ćemo skriptu koja nakon dizajniranja modela u alatu poput Salome automatski pretvori izlazne podatke u pogodan ulazni format za OOFEM, napravi analizu te vizualizira podatke u softverskom programu ParaView. Za pomoć pri tome koristit ćemo Python skriptu za pretvorbu podataka, pokretanje OOFEM-a putem Pythona i Python sučelje koje nam ParaView daje na raspolaganje.
 
+\lstinputlisting[language=python, label={code:modeling_pipeline}, caption={Python skripta za automatsku obradu i vizualizaciju modela konstruiranog sa softverom treće strane poput programa Salome}]{codes/modeling_pipeline.py}
 
+Ukoliko rezultate prethodnih kodova (\ref{code:zadatak_terminal}, \ref{code:zadatak_python_file} i \ref{code:zadatak_python_full}) koji rješavaju problem \ref{fig:problem__not_noted} iz dijela \ref{primjer_zadatka_i_rjesenja} želimo ručno učitati i prikazati u ParaViewu rezultat je slika \ref{fig:visualization_of_zadatak_paraview}
 
-
-
-
-
-
-
-\chapter[Naslov poglavlja u sadržaju][Kratki naslov poglavlja]{Naslov poglavlja}	
-% ukoliko naslov nije jako dugacak dovoljno je samo \chapter{Naslov poglavlja} 
-
-\section[Naslov sekcije u sadržaju][Kratki naslov sekcije]{Naslov sekcije}
-\subsection{Naslov podsekcije}
-\begin{thm}
-Iskaz teorema u kojem se javljaju skupovi  $\N$, $\Z$, $\Q$, $\R$ i $\C$.
-\end{thm}
-\begin{conj}
-Iskaz slutnje u kojoj se javljaju funkcije $\tg$, $\tgh$ i $\sh$.
-\end{conj}
-\begin{cor}
-Iskaz posljedice u kojoj se javljaju skupovi $\Ker T$ i $\slika T$..
-\end{cor}
-\begin{proof}
-Dokaz posljedice se nalazi u \cite{kljuc}. Pogledajte i \cite{kurepa1956convex}, \cite{kurepa1981funkcionalna} te \cite{Dutkay:2009}.
-\end{proof}
-jsfdsqF
-SG
-SFG
-FSG
-DF
-GS
-FG
-SFG
-SFG
-
-SFG
-
-SG
-SDFG
-SF
-GS
-
-DG
- SD
-S
-
-
-SD
- 
-
-DFGSDFG
-
-
-SDGSDF
-
-
-SDGSDGF
-
-
-SDGFSFDG
-
-
-SDGSDG  sdfsfg f fdh fgj gh jgjk jkj k yk k klk l fs fd gsdfg dfh dfghj fj ghjk gjk jlk sdf 
-$x_1+x_2+x_3+x_4=12$ $x_1+x_2+x_3+x_4=12$
- $x_1+x_2+x_3+x_4=12$ $x_1+x_2+x_3+x_4=12$ $x_1+x_2+x_3+x_4=12$ $x_1+x_2+x_3+x_4=12$
- $x_1+x_2+x_3+x_4=12$ $x_1+x_2+x_3+x_4=12$ $x_1+x_2+x_3+x_4=12$
-$x_1+x_2+x_3+x_4=12$ 
-SDGSG sdfsfg f fdh fgj gh jgjk jkj k yk k klk l fs fd gsdfg dfh dfghj fj ghjk gjk jlk sdf sfdh j fj tuk ugad h j yrtu iru i
-\[ z \left( 1 \ +\ \sqrt{\omega_{i+1} + \zeta -\frac{x+1}{\Theta +1} y + 1}
-\ \right) =  1 \]
-
-GSDFGSDFG
-
-
-
-\begin{equation}
-\label{eq:jed111}
-	1+1=2
-\end{equation}
-
-SDG
-SDFGS
-
-SDFGSFG
-
-
-SFGSFG
-
-
-SDFGSFG
-
-
-SDGSFG
-
-\label{stranica}
-Na stranici \pageref{stranica} se nalaza slika u \textbf{png} formatu.
-% slike smiju biti u svim formatima koje podrzava pdf (pdf, jpg, png)
 \begin{figure}[h!t]
 \begin{center}
-\includegraphics[scale=0.5]{mosaic-from-pompeii.png}
-\caption{Prva slika}
+\includegraphics[scale=0.21]{pictures/chapter_zadatak/paraview_zadatak.png}
+\caption{Vizualizacija OOFEM rješenja zadatka \ref{fig:problem__not_noted} pomoću ParaViewa}
+\label{fig:visualization_of_zadatak_paraview}
 \end{center}
 \end{figure}
 
-Na slici \ref{fig:3d} se nalazi 3D graf neke funkcije. 
-
-\begin{figure}[h!t]
-\centering \includegraphics{surface3d.png}
-\caption{Druga slika}
-\label{fig:3d}
-\end{figure}
-
-kao i jedna vrlo komplicirana formula koja slijedi iz \eqref{eq:jed111}
-\[ \sum_{i=1}^{\infty}A_{x_1}\times A_{{\alpha}_2}\oslash\iint_{\Omega}x^2\ddagger\limsup_{n\in\N}\frac{\alpha+\theta+\gamma}{n^{\omega}}\;\;\text{je u stvari}\;\;\biguplus_{r\in\Q}\overline{\Xi_i \mathop\Theta_{\substack{j\in\C \\ j\ni i\Q}} \Upsilon^{k^j} \underset{\ast}{\Psi} \hslash\vert_{\{\alpha\}}}.\]
 
 % Na kraju diplomkog rada stavlja se  bibliografija
 % Najprije definiramo nacin prikazivanja bibliografije, u ovom slucaju verzija amsplain stila

@@ -1,0 +1,36 @@
+rezultat.out
+Analiza sila i pomaka u 3 stapna elementa
+
+StaticStructural nsteps 1 nmodules 1
+
+vtkxml tstep_all domain_all primvars 1 1
+
+domain 2dtruss
+OutputManager tstep_all dofman_all element_all
+
+ndofman 3 nelem 3 ncrosssect 1 nmat 1 nbc 4 nic 0 nltf 1 nset 4
+
+node 1 coords 3 0.0  0.0  0.0
+node 2 coords 3 2.5  0.0  0.0
+node 3 coords 3 0.0  0.0  1.44
+
+truss2d 1 nodes 2 1 2
+truss2d 2 nodes 2 1 3
+truss2d 3 nodes 2 2 3
+
+SimpleCS 1 area 1 material 1 set 1
+IsoLE 1 d 1. E 200.0e4 n 0.2 tAlpha 1.2e-5
+
+BoundaryCondition 1 loadTimeFunction 1 dofs 2 1 3 values 2 0.0 0.0 set 2
+BoundaryCondition 2 loadTimeFunction 1 dofs 1 3 values 1 0.0 set 3
+
+NodalLoad 3 loadTimeFunction 1 dofs 1 1 Components 1 15000.0 set 3
+NodalLoad 4 loadTimeFunction 1 dofs 1 3 Components 1 5000.0 set 4
+
+ConstantFunction 1 f(t) 1.
+
+Set 1 elements 3 1 2 3
+Set 2 nodes 1 1
+Set 3 nodes 1 2
+Set 4 nodes 1 3
+
