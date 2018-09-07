@@ -97,6 +97,14 @@
 
 \addto\captionscroatian{\renewcommand{\lstlistingname}{Kod}}
 
+\usepackage{algorithmicx}
+\usepackage[ruled]{algorithm}
+\usepackage{algpseudocode}
+
+
+
+
+
 \pagestyle{headings}
 % uz paket fancyhdr mogu se lako kreirati fancy zaglavlja i podnozja
 
@@ -680,7 +688,8 @@ Klasa koja obuhvaća, te kasnije i inicijalizira sve ostale je \textbf{\textit{E
     \item Rješavanje problema opisanih jednadžbama pomoću prikladnih numeričkih metoda. To zahtijeva povezivanje numeričkih metoda karakterističnih elemenata s komponentama jednadžbi. \textit{EngngModel} mora mapirati svaku komponentu jednadžbe (koja ima fizičko značenje). odgovarajućoj numeričkoj komponenti numeričke metode.
     \item Prekinuti vremenski korak ažuriranjem vrijednosti čvorova i elementa (uključujući ažuriranje integracijskih točaka).
 \end{itemize}
-Koje sve probleme OOFEM "zna" riješiti možemo vidjeti tako da pogledamo tko sve implementira klasu EngngModel. Grafički prikaza toga dan je na slici \ref{fig:engngModel_inheritance}
+
+Jedna od najvažnijih (virtualnih) funkcija koje \textit{EngngModel} definira je \textit{solveYourself} koja je zaslužna za pozivanje analize modela. Ona poziva funkciju \textit{solveYourselfAt} koja prihvaća vremenski korak kao argument. Tako ju funkcija \textit{solveYourself} poziva za svaki vremenski korak specificiran iz ulaznih podataka. Funkcija \textit{solveYourselfAt} implementirana je za svaki problem zasebno te je upravo ta funkcija ona koja detaljno opisuje kako se pojedini fizikalni problem rješava. Tako primjerice klasa \textit{StaticStructural} implementira tu metodu između 259. i 395. linije u datoteci staticstructural.c. Metoda dohvaća sve potrebne elemente poput matrice krutosti koja je za ovaj problem rijetka matrica, unutarnje i vanjske sile, opterećenja i ostale bitne sastavnice potrebne za rješavanje problema. Po dohvaćanju svih potrebnih elemenata, metoda poziva metodu \textit{solve} nad atributom koji nasljeđuje apstraktnu klasu \textit{NumericalMethod}. U slučaju klase \textit{StaticStructural} ako u ulaznim podacima nije specificirano drugačije klasa koja rješava numerički zadatak (sustav jednadžbi) je \textit{NRSolver} koja implementira Newton-Raphson metodu rješavanja. Koje sve probleme OOFEM "zna" riješiti možemo vidjeti tako da pogledamo tko sve implementira klasu EngngModel. Grafički prikaza toga dan je na slici \ref{fig:engngModel_inheritance}.
 
 \begin{figure}[h!t]
 \begin{center}
@@ -701,7 +710,50 @@ Iduća važna klasa koja je sadržana kao atribut unutar \textit{EngngModel} kla
 
 \par
 
-Kao što smo već vidjeli na slici \ref{fig:numerical_method_inheritance} apstraktna klasa koja omogućava lagano dodavanje novih matematičkih metoda rješavanja pojedinih problema je \textbf{NumericalMethod}. \textit{EngngModel} može koristiti različite numeričke metode, ovisno, na primjer, o veličini problema ili prethodnoj konvergenciji. Svaka pojedina instanca klase \textit{EngngModel} odgovorna je za mapiranje njezinih jednadžbi na odgovarajuće numeričke komponente. Takvo mapiranje omogućuje implementiranje numeričkih metoda neovisno od određenog fizičkog problema. Samim time, numerička metoda može predstavljati i sučelje za algoritam napisan u C-u ili Fortranu. Klase izvedene iz numeričke metode trebale bi objaviti sučelje za specifičnu vrstu problema (poput rješenja linearnog sustava). Treba naglasiti da sve numeričke metode koje rješavaju isti problem koriste isto sučelje (isto mapiranje) - to se provodi korištenjem iste osnovne klase osnovnih problema. Primjer toga je problem rješavanja rijetkog linearnog sustava deklariranog klasom \textit{SparseLinearSystemNM}. Stoga je moguće riješiti problem s bilo kojom prikladnom numeričkom metodom za klasifikaciju i ostaviti cijeli model, uključujući i mapiranje, nepromijenjen jer sve instance klase pružaju zajedničko sučelje. \par
+Kao što smo već vidjeli na slici \ref{fig:numerical_method_inheritance} apstraktna klasa koja omogućava lagano dodavanje novih matematičkih metoda rješavanja pojedinih problema je \textbf{\textit{NumericalMethod}}. Kao što je rečeno u opisu \textit{EngngModela}, \textit{EngngModel} može koristiti različite numeričke metode, ovisno, na primjer, o veličini problema ili prethodnoj konvergenciji. Svaka pojedina instanca klase \textit{EngngModel} odgovorna je za mapiranje njezinih jednadžbi na odgovarajuće numeričke komponente. Takvo mapiranje omogućuje implementiranje numeričkih metoda neovisno od određenog fizičkog problema. Samim time, numerička metoda može predstavljati i sučelje za algoritam napisan u C-u ili Fortranu. Klase izvedene iz numeričke metode trebale bi objaviti sučelje za specifičnu vrstu problema (poput rješenja linearnog sustava). Treba naglasiti da sve numeričke metode koje rješavaju isti problem koriste isto sučelje (isto mapiranje) - to se provodi korištenjem iste osnovne klase osnovnih problema. Primjer toga je problem rješavanja rijetkog linearnog sustava deklariranog klasom \textit{SparseLinearSystemNM}. Stoga je moguće riješiti problem s bilo kojom prikladnom numeričkom metodom za klasifikaciju i ostaviti cijeli model, uključujući i mapiranje, nepromijenjen jer sve instance klase pružaju zajedničko sučelje. Tako primjerice za problem rješavanja rijetkog linearnog sustava (\textit{SparseLinearSystemNM}) postoji 8 različitih implementacija numeričkih metoda što je vidljivo sa slike \ref{fig:numerical_method_inheritance} (u novoj verziji za koju još ne postoji dokumentacija dodana je još jedna, deveta metoda koja koristi metodu direktne faktorizacije rijetke matrice). Glavni zadatak tih metoda je rješavanje sustava jednadžbi $Ax = b$. \par
+
+Kako izgleda implementacija tih numeričkih metoda prikazat ćemo na primjeru klase \textit{IMLSolver} koja za rješavanja sustava jednadžbi $A * x = b$ koristi iterativne metode IML++ biblioteke te može raditi sa svim implementacijama rijetkih matrica (npr. \textit{SpoolesSolver} zahtjeva točno određeni format rijetke matrice). Tako klasa \textit{IMLSolver} implementira dvije glavne metode. Prva je čitanje specifičnih ulaznih podataka poput prihvatljive greške, maksimalnog broj iteracija i tipa iterativne metode za rješavanje koje mogu biti ili GMRES (generalizirana metoda minimalnih reziduala) ili CG (metoda konjugiranih gradijenta), a druga je metoda \textit{solve} koja provjeri preduvjete, pokrene štopericu i ovisno o odabranoj metodi pozove GMRES ili CG algoritam. Algoritam GMRES služi za rješavanje nesimetričnog linearnog sustava, dok CG rješava simetričan slučaj. U nastavku dajemo kratak opis metode, pseudokod i opis konvergencije za CG algoritam. Opis prati algoritam opisan u \cite{linear_book}.  \par 
+Metoda konjugiranih gradijenta je efektivna metoda za rješavanje simetričnih pozitivno definitnih sustava. Metoda generira nizove vektora aproksimacija rješenja, ostataka te smjer traženja koji se koristi kod računanje iduće aproksimacije rješenja. U svakoj iteraciji izvedu se dva unutarnja množenja za računanje skalara za iduću aproksimaciju koji zadovoljavaju određene uvjete ortogonalnosti. Na simetrično pozitivno definiranom linearnom sustavu ti uvjeti podrazumijevaju da je udaljenost do pravog rješenja minimalizirana u nekoj normi. i-ta aproksimacija $x^{(i)}$ se mijenja za umnožak skalara $(\alpha_i)$ i vektora smjera $p^(i)$:
+\begin{equation}
+x^{(i)} = x^{(i - 1)} + \alpha_i p^{(i)}    
+\end{equation}
+Odnosno ostaci se računaju s $r^{(i)} = b - Ax^{(i)}$ to jest:
+\begin{equation}
+\label{eq:izbor_alfe}
+    r^{(i)} = r^{(i - 1)} - \alpha * q^{(i)} \qquad \text{gdje je} \qquad q^{(i)} = A p^{(i)} 
+\end{equation}
+$\alpha$ se izabire tako da minimizira $r^{(i)^T} A^{-1} r^{(i)}$ za svaki odabrani $\alpha$ u jednadžbi \ref{eq:izbor_alfe}. Smjer traženja izabire se koristeći ostatke
+\begin{equation}
+    p^{(i)} = r^{(i)} + \beta_{i-1} p^{(i-1)}
+\end{equation}
+gdje se odabir $\beta_i = (r^{(i)^T} r^{(i)}) / (r^{(i-1)^T} r^{(i-1)}) $ vrši osiguravajući da $p^{(i)}$ i $A p^{(i-1)}$, odnosno ekvivalentno tome $r^{(i)}$ i $r^{(i-1)}$ budu ortogonalni. Štoviše, može se pokazati da takav odabir $\beta_i$ čini $p^{(i)}$ ortogonalnima na sve prijašnje $A p^{(j)}$ i analogno $r^{(i)}$ ortogonalnim na sve $r^{(j)}$. U nastavku slijedi pseudokod za algoritam.
+
+\begin{algorithm}[H]
+\caption{Pretkondicionirani algoritam za metodu konjugiranih gradijenata}\label{code:pseudokod}
+\begin{algorithmic}[1]
+\State Izračunaj $r^{(0)} = b - A x^{(0)}$ za neki inicijalni $x^{(0)}$
+\For{$i = 1, 2, \dots$} 
+    \State $z^{(i - 1)} = M^{-1} * r^{(i - 1)}$
+    \State $\rho_{(i - 1)} = r^{(i - 1)^T} z^{(i - 1)}$
+    \If{$i = 1$}
+        \State $p^{(1)} = z^{(0)}$
+    \Else
+        \State $\beta_{(i - 1)} = \rho_{(i - 1)}/\rho_{(i - 2)} $
+    \EndIf
+    \State $q^{(i)} = A p^{(i)}$
+    \State $\alpha_i = \rho_{(i - 1)} / p^{(i)^T} q^{(i)}$
+    \State $x^{(i)} = x^{(i - 1)} + \alpha_i p^{(i)}$
+    \State $r^{(i)} = r^{(i - 1)} - \alpha_i q^{(i)}$
+    \State provjera konvergencije i nastavak u slučaju potrebe
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+Pogreška metode može se ograničiti u smislu broja spektralnog stanja $\kappa_2$ matrice $M^{-1}A$. Ako su $\lambda_{max}$ i $\lambda_{min}$ najveća i najmanja svojstvena vrijednost simetrične pozitivno definitne matrice $B$, onda je broj spektralnog stanja matrice $B$ jednak $\kappa_2(B) = \lambda_{max}(B) / \lambda_{min}(B)$. Ako je $\tilde{x}$ egzaktno rješenje sustava $Ax = b$ gdje je A simetrična i pozitivno definitna matrica tada za metodu CG sa simetričnom i pozitivno definitno pretkondicioniranom matricom $M$ vrijedi:
+\begin{equation}
+    \lVert x^{(i)} - \tilde{x} \rVert_A \leqslant 2 \alpha^i \lVert x^{(0)} - \tilde{x} \rVert_A
+\end{equation}
+gdje je $\alpha = (\sqrt{\kappa_2} - 1) / (\sqrt{\kappa_2} + 1)$ i $\lVert y \rVert_A^2 \equiv (y, Ay)$. Iz toga slijedi da je broj iteracija za dostizanje relativnog smanjenja greške proporcionalan s $\sqrt{\kappa_2}$. Ovdje smo opisali jednu implementaciju \textit{NumericalMethod} klase kojoj je glavna uloga rješavanje (ne)linearnog sustava (ne)jednadžbi $Ax = b$. \par
 
 Klasa s najvećim brojem nasljeđivanja i najdubljim stablom je \textbf{\textit{FEMComponent}} klasa. Na slici \ref{fig:FEMComponent_inheritance} se može vidjeti to stablo koja radi svoje veličine nije moglo stati stoga nekim čvorovima nisu sva djeca prikazana.
 
@@ -902,7 +954,7 @@ Kao što je već navedeno, idući opis opisuje ulazne podatke za strukturnu anal
     \item Opis domene zadatka. Najopsežniji dio datoteke, ovisno o analizi može biti i više domena, ali u našem slučaju bit će jedna. U slučaju više domena ulaz se zadaje analogno. U opisu domene nalazi se sve što je u dijelu poglavlja \ref{text:domain} kod opisa klase \textit{Domain} opisano.
     \begin{enumerate}
         \item Tip domene. Neke od postojećih domena su: \textit{2dPlaneStress} ili \textit{2d-Truss} za analize s dva stupnja slobode po čvoru (pomaci $u$ i $v$), \textit{3d} za analize s tri stupnja slobode (pomaci po $u$, $v$ i $w$, \textit{3dShell} za analize sa šest stupnjeva slobode (pomaci i rotacije po svakoj osi). Za primjer možemo uzeti "domain 2dPlaneStress".
-        \item Način ispisa. Filter koji određuje koje će se sve informacije ispisivati, to jest za koje čvorove, elemente i korake želimo informacije. Ukoliko želimo dobiti informacije o svim stavkama zadajemo: "OutputManager tstep\_all dofman\_all element\_all".
+        \item Način ispisa. Filter koji određuje koje će se sve informacije ispisivati, to jest za koje čvorove, elemente i korake želimo informacije. Ako želimo dobiti informacije o svim stavkama zadajemo: "OutputManager tstep\_all dofman\_all element\_all".
         \item Veličina domene. Broje pojedinih dijelova unutar domene, to jest broj čvorova, elemenata, poprečnih presjeka, materijala, rubnih uvjeta zajedno s opterećenjima, početnih uvjeta, funkcija vremena i skupova podataka. U primjeru dani su brojevi za dijelove domene u istom redoslijedu: "ndofman 6 nelem 5 ncrosssect 1 nmat 1 nbc 3 nic 0 nltf 1 nset 3".
         \item Skup stupnjeva slobode. Ovaj tip parametra sakuplja više stupnjeva slobode u jedan element. Najčešći tip je čvor. Osim čvora postoje i viseći čvorovi, stijenke elemenata, PFEM čestice i drugi. Nadalje koristimo čvorove. Čvor prihvaća koordinate u globalnom koordinatnom sustavu (ako drugačije nije navedeno) te neobavezne varijable za početne i rubne uvijete kao i opterećenje. "node 1 coords 3 0.  0. 10.".
         \item Konačni element. Jedan od elemenata opisanih u potpoglavlju \ref{poglavlje:finite_elements_in_oofem}. Konačni element zahtjeva čvorove koji ga opisuju npr. "Truss2d 1 nodes 2 1 4".
@@ -1116,7 +1168,7 @@ Analogno s primjerom \ref{code:python_oofem_full_example} postavljanje i rješav
 
 
 \section{Korištenje PyGmsh-a za izradu mreže i liboofem-a za rješavanje zadatka}
-Ako imamo datoteku s modelom na kojem želimo raditi izračune u formatu koji Gmsh prepoznaje i s kojim zna raditi možemo iskoristiti PyGmsh \cite{pygmsh_github} koji je Python omotač oko Gmsh-a za izradu mrežastog modela iz danog početnog modela. Tako možemo ne mičući se od Pythona, od početnog modela izraditi mrežu po željenim specifikacijama, na nju dodati rubne uvjete, opterećenja, materijale i ostale elemente potrebne za metodu konačnih elemenata te pomoću liboofem-a napraviti izračun koji ćemo kasnije vizualizirati u nekom od za to specifičnih alata poput ParaViewa. U nastavku dajemo kod koji radi upravo navedeno. Kod koristi materijale iz \cite{tadej}, to jest ulazni podaci te proces izrade mreže su preuzeti u potpunosti, ali je provjere kvalitete mreže radi čitkosti koda zanemarena. Konstruirana mreža sastoji se od elemenata s tri i četiri čvora sa šest stupnjeva slobode te koristimo ljuskaste elemente. U danom kodu ne zadajemo nikakve rubne uvjete za analizu ni opterećenja već puštamo liboofem-u da samo konstruira izlazne podatke koje ćemo vizualizirati pomoću ParaViewa. Vizualizacijom koda \ref{code:oofem_from_gmsh_cleaned} dobiva se slika \ref{fig:brodski_element}.
+Ako imamo datoteku s modelom na kojem želimo raditi izračune u formatu koji Gmsh prepoznaje i s kojim zna raditi možemo iskoristiti PyGmsh \cite{pygmsh_github} koji je Python omotač oko Gmsh-a za izradu mrežastog modela iz danog početnog modela. Tako možemo ne mičući se od Pythona, od početnog modela izraditi mrežu po željenim specifikacijama, na nju dodati rubne uvjete, opterećenja, materijale i ostale elemente potrebne za metodu konačnih elemenata te pomoću liboofem-a napraviti izračun koji ćemo kasnije vizualizirati u nekom od za to specifičnih alata poput ParaViewa. U nastavku dajemo kod koji radi upravo navedeno. Kod koristi materijale iz \cite{tadej}, to jest ulazni podaci te proces izrade mreže su preuzeti u potpunosti, ali je provjere kvalitete mreže radi čitkosti koda zanemarena. Konstruirana mreža sastoji se od elemenata 4 elementa s 3 čvora te 332 elementa s četiri čvora gdje svaki čvor ima šest stupnjeva slobode, te koristimo ljuskaste elemente. U danom kodu ne zadajemo nikakve rubne uvjete za analizu ni opterećenja već puštamo liboofem-u da samo konstruira izlazne podatke koje ćemo vizualizirati pomoću ParaViewa. Vizualizacijom koda \ref{code:oofem_from_gmsh_cleaned} dobiva se slika \ref{fig:brodski_element}.
 
 \lstinputlisting[language=python, label={code:oofem_from_gmsh_cleaned}, caption={Konstrukcija mrežastog modela pomoću PyGmsh-a te učitavanje mreže u OOFEM putem liboofem-a}]{codes/oofem_from_gmsh_cleaned.py}
 
