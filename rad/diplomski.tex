@@ -290,6 +290,7 @@ Rezultati dobiveni primjenom metode konačnih elemenata se interpretiraju tako d
 
 \newpage
 \section{Primjer zadatka i rješenja}
+\label{primjer_zadatka_i_rjesenja}
 Radi lakšeg razumijevanja prethodnog potpoglavlja, u ovome ćemo napraviti statički proračun sila na jednostavnom dvodiminzijonalnom primjeru sastavljenom od tri štapna elementa. U rješenju zadatka pojaviti će se i nekoliko stvari na koje nismo stavili naglasak u prethodnom dijelu poput vrste materijala i slično. Također, uvodimo i nekoliko novih jednadžbi od kojih su neke analogoni jednodimenzionalnima iz prethodnog dijela. U primjeru prolazimo kroz sve već navedene korake dok ne dobijemo sile i pomake po štapnim elementima. \\
 Zadatak je napraviti: 
 \begin{enumerate}
@@ -308,7 +309,7 @@ Zadatak je napraviti:
 Na slici vidimo problem koji moramo riješiti. Sa slike možemo očitati da se problem sastoji od 3 štapna konačna elementa spojena u 3 zajednička čvora. Također, očito je da je gornji lijevi čvor (čvor 1) fiksan, to jest on se ne može micati (ima 0 stupnjeva slobode). Gornji desni čvor (čvor 2) je slobodan samo u jednom smjeru te se može pomicati lijevo-desno, te donji čvor (čvor 3) nema nikakva ograničenja što mu daje mogućnost pomaka po cijeloj ravnini (2 stupnja slobode). \\
 
 Za prvi dio zadatka koji je preduvjet za računanje pomaka čvorova i sile u štapovima moramo izračunati statičke sile u čvorovima i štapovima. \\
-Radi lakšeg snalaženja konstruiramo vlastitu notaciju tako da je $L_2$ duljina između čvora 1 i 2, a $L_3$ duljina između čvorova 2 i 3. Na slici \ref{fig:problem_noted} su označeni i lokalni koordinatni sustavi za svaki konačni element s plavom bojom te globalni koordinatni sustav s crvenom. Također osim sila $F_1$ i $F_2$ označene su i sile $Fa_x$, $Fa_y$ i $Fb_y$.
+Radi lakšeg snalaženja konstruiramo vlastitu notaciju tako da je $L_2$ duljina između čvora 1 i 3, a $L_3$ duljina između čvorova 2 i 3. Na slici \ref{fig:problem_noted} su označeni i lokalni koordinatni sustavi za svaki konačni element s plavom bojom te globalni koordinatni sustav s crvenom. Također osim sila $F_1$ i $F_2$ označene su i sile $Fa_x$, $Fa_y$ i $Fb_y$.
 
 \begin{figure}[h!t]
 \begin{center}
@@ -948,7 +949,7 @@ Da bi se C++ kod mogao koristiti putem Python-a potrebno je zadovoljiti neke pre
 
 Nakon što smo opisali kako se kod napisan u C++-u uopće može koristiti u Python-u, opisati ćemo neke od mogućnosti koje nam \textit{liboofem} Python biblioteka daje te ćemo dati primjer kako je i koristiti. Kao što smo i opisali Boost.Python je omotač oko C++ koda stoga je glavna motivacija prijašnjeg (\ref{poglavlje:koristenje_oofema}) potpoglavlja bila upoznavanje mogućnosti OOFEM programa. Sada ćemo pokazati kako te iste funkcionalnosti koristiti iz Python-a, ali i neke dodatne mogućnosti koje nam samo Python okruženje nudi poput iteraktivnog ispitivanja pojedinih elemenata te grafički prikaz željenih vrijednosti. \par
 
-Primjer kombinacije Python-ovih mogućnosti (točnije korištenjem matplotlib biblioteke) s mogućnostima OOFEM-a moguće je konstruirati mrežasti model i odmah ga i vizualizirati. Pokretanjem idućeg (\ref{code:python_oofem_matplotlib}) koda, dobiva se slika \ref{fig:visualization_of_mesh_grid_oofem}.
+Primjer kombinacije Python-ovih mogućnosti (točnije korištenjem matplotlib biblioteke) s mogućnostima OOFEM-a moguće je konstruirati mrežasti model i odmah ga i vizualizirati. Pokretanjem idućeg (\ref{code:python_oofem_matplotlib}) koda, dobiva se slika \ref{fig:visualization_of_oofem_mesh_grid_with_python}.
 
 \begin{lstlisting}[language=python, label={code:python_oofem_matplotlib}, caption={Konstrukcija mrežastog modela i vizualizacija}]
 from mpl_toolkits.mplot3d import Axes3D
@@ -988,7 +989,7 @@ plt.show()
 \begin{center}
 \includegraphics[scale=0.61]{pictures/chapter_oofem/liboofem_mesh_grid.png}
 \caption{Vizualizacija uniformne pravokutne mreže konstruirane putem \textit{liboofem} biblioteke putem Pythona.}
-\label{fig:visualization_of_mesh_grid_oofem}
+\label{fig:visualization_of_oofem_mesh_grid_with_python}
 \end{center}
 \end{figure}
 
@@ -1062,6 +1063,7 @@ Iz koda je vidljivo da se korisnicima ostavlja mogućnost korištenja svih kona�
 \begin{lstlisting}[language=python, caption={Primjer konstrukcije konačnih elemenata koji nemaju implementiran direktan poziv}]
 greda_direktno = liboofem.beam2d(1, domain, nodes=(1,2), ...)
 greda_indirektno = liboofem.element('beam2d', 1, domain, nodes=(1,2), ...)
+greda_indirektno2 = liboofem.InputRecord(1, "beam2d", {"nodes": (1,2), ...})
 stap_indirektno = liboofem.element('truss2d', 1, domain, nodes=(1,2), ...)
 \end{lstlisting}
 
@@ -1071,12 +1073,39 @@ U ovom dijelu prikazali smo više načina korištenja OOFEM-a putem Python-a te 
 
 
 \section{Vizualizacija rezultata}
-v
+OOFEM pruža nekoliko načina kako dobivene rezultate prikazati. Opisat ćemo 3 različita načina i dati nekoliko primjera kako te vizualizacije izgledaju.
+\begin{enumerate}
+    \item OOFEG - OOFEM izvorni kod dolazi s OOFEG, X-windows baziranim vizualizacijskim alatom. Kako je baziran na X-windows bibliotekama više manje upotreba mu je ograničena na unix platforme. OOFEG je razvijen pomoću Elixir i Ckit biblioteka koje više nisu aktualne stoga se grafičko sučelje izgleda kao "zamrznuto" u vremenu kasnih 90-tih i daljnji razvoj više nije lako ostvariv. OOFEM je isto limitiran u mogućnostima 3D vizualizacije. Radi svega toga OOFEG je uredu za upotrebu kod relativno jednostavnih primjera ali ubrzo postaje nedovoljno moćan. OOFEG ima jedan dobar slučaj upotrebe, a to je za vizualizaciju mreže te se nakon što su instalirane sve njegove potrebne komponente koristi s \textit{oofeg -f ulazna\_datoteka.in}. 
+        \begin{figure}[h!t]
+        \begin{center}
+        \includegraphics[scale=0.3]{pictures/chapter_oofem/oofeg_koyna_dam.png}
+        \caption{Vizualizacija pomoću OOFEG grafičkog procesora. \cite{oofem-web}}
+        \label{fig:oofeg_example}
+        \end{center}
+        \end{figure}
+    \item ParaView - OOFEM omogućava na jednostavan način pretvorbu izlazni podataka u VTK format što omogućava vizualizaciju putem softvera treće strane poput ParaView-a i MayaVi-a. Dobra strana toga je to što su takvi alati specijalizirani za vizualizaciju te omogućuje znatno više značajki te se u odnosu na OOFEG i dalje razvijaju i napreduju. Kao što smo naveli u potpoglavlju \ref{poglavlje:koristenje_oofema} pod rednim brojem četiri, za izvoz podataka u VTK format dovoljno je dodati jednu liniju. Jednako tako dodavanje samo jedne linije u Python kod rezultati će se ispisati u datoteku i u VTK formatu. Nakon završetka analize, konstruirati će se datoteke s informacijama za svaki korak koje se uvezu u našem slučaju u ParaView. Nadalje, za uvesti podatke u ParaView potrebno je samo označiti datoteku koja ima ekstenziju \textit{.pvd} i koja ima zapisane putanje do datoteka s podacima o rezultatima analize. Na slici \ref{fig:paraview_example} dajemo primjer strukture vizualizirane pomoću ParaView softvera.
+        \begin{figure}[h!t]
+        \begin{center}
+        \includegraphics[scale=0.2]{pictures/chapter_oofem/paraview_beam_bending_full.png}
+        \caption{Vizualizacija grede na koju se vrši pritisak pomoću ParaView softvera.}
+        \label{fig:paraview_example}
+        \end{center}
+        \end{figure}
+    \item Python - Kao što smo pokazali na gornjem primjeru, ekosustav Python-a dolazi s velikom količinom alata koji nam mogu pomoći u vizualizaciji bilo kakvih podataka. Tako smo na slici \ref{fig:visualization_of_oofem_mesh_grid_with_python} prikazali mrežu konačnih elemenata konstruiranih pomoću OOFEM-a. Jedna od bitnijih biblioteka za vizualizaciju je \textit{matplotlib} o kojoj se više može pronaći na web stranici \cite{matplotlib_web}.
+\end{enumerate}
 
-
+Iz svega navedenoga preporuka za vizualizaciju jest koristiti već postojeće alate pomoću jednostavne funkcije izvoza rješenja, te u slučaju potrebe za nekom dodatnom vizualizacijom koja obuhvaća nešto što se iz uobičajenih rezultata ne dobije poput matrice krutosti pojedinih elemenata koristiti Python-ov ekosustav koji pruža dobru podršku za proizvoljne posebne slučajeve.
 
 \chapter{Testni primjer}
-asdfasdf
+U ovom poglavlju pokazati ćemo kako riješiti zadatak \ref{fig:problem__not_noted} koji smo ručno riješili u poglavlju \ref{primjer_zadatka_i_rjesenja}. Zadatak ćemo riješiti na 3 načina pomoću OOFEM-a te usporediti rezultate u odnosu na ručno rješavanje. Prvo ćemo sastaviti datoteku ulaza s potpunim problemom te pokrenuti OOFEM s njome. Za drugi način koristiti ćemo Python i pomoću njega učitati ulaznu datoteku koju smo koristili i u prvom načinu. Za treći način rješavanja u potpunosti ćemo definirati ulazne podatke u Python-u i dobiti rješenje. Za vizualizaciju rješenja koristiti ćemo ParaView i vizualizaciju pomoću Python-a.
+
+\section{Rješavanje učitavanje datoteke u OOFEM putem terminala}
+
+
+
+
+
+
 
 \section{Problem}
 p
@@ -1218,17 +1247,18 @@ kao i jedna vrlo komplicirana formula koja slijedi iz \eqref{eq:jed111}
 % I na koncu idu sazeci na hrvatskom i engleskom
 
 \begin{sazetak}
-Ukratko ...
+Metoda konačnih elemenata je jedna od važnijih numeričkih metoda za rješavanje problema u inženjerstvu poput strukturne analize objekata. Korisnost metode može sve vidjeti po količini alata koji su razvijeni za nju te po tome što je standard u industrijama poput zrakoplovne i automobilske. Cilj ovog diplomskog rada bio je predstaviti OOFEM (Object Oriented Finite Element Method), jedan takav alat i strukturu njegovog otvorenog koda tako da se budući korisnici mogu lakše snaći u njegovom korištenju, a posebice ako im se ukaže potreba za nadogradnjom i implementacijom novih funkcionalnosti. U opisu OOFEM-a poseban naglasak stavljen je na strukturnu analizu te konačne elemente i materijale potrebne poput greda i šipki u dvodimenzionalnom sustavu analize. Središnji je dio rada opis korištenja OOFEM-a putem njegovog sučelja za korištenje iz programskog jezika Python.
+Osim generalnih informacija što se sve i kako može koristiti putem Python-a, priloženo je i nekoliko primjera te je čak i ukratko opisan postupak kako je izrađeno sučelje iz C++-a tako da se može koristiti u Python-u. Motivacija iza toga je ta što nisu sve značajke izložene putem Python sučelja, te se ukratko pokazuje kako bi se mogle izložiti nove funkcionalnosti u slučaju potrebe.
 \end{sazetak}
 
 \begin{summary}
-In this ...
+The finite element method is one of the most important numerical methods for solving engineering problems such as structural analysis of objects. The usefulness of the method can be seen by the amount of tools developed for it and by the fact that it became standard in industries such as aviation and automotive. The aim of this thesis was to present OOFEM (Object Oriented Finite Element Method), enabling future users to use it more easily, especially if they need to upgrade existing or implement new functionalities. In the description of OOFEM, a special emphasis was placed on the structural analysis method and finite elements and materials needed for it as beams and trusses in two-dimensional analysis. The central part of the thesis describes the use of OOFEM through its interface for use in the Python programming language. In addition to general information about what and how to use it through Python, a few examples are included, and a brief description of how a C++ interface is made so that it can be used in Python. The motivation behind it is that not all features are exposed through Python interfaces, so there is brief introduction how new functionalities could be exposed if necessary.
 \end{summary}
 
 % te zivotopis
 
 \begin{cv}
-Dana ...
+Ivan Laković rođen 14. studenog 1993. godine u Puli. Završava osnovnu školu u Svetom Lovreču, a zatim i opću gimnaziju u Pazinu. Na Matematičkom odsjeku Prirodoslovno-matematičkog fakulteta Sveučilišta u Zagrebu 2012. godine upisuje preddiplomski studij matematike. Izobrazbu nastavlja na istom fakultetu, na diplomskom studiju Računarstvo i matematika. Jedan semestar studija provodi na razmjeni na Sveučilištu u Wroclawu (Uniwersytet Wrocławski, Instytut Informatyki) Za trajanja studija, osim studiranja natječe se i postiže dobre rezultate na studentskim natjecanjima \textit{Mozgalo, Airtravel Hackaton, AI Battleground, Try$\{$code$\}$catch i tehnološkoj areni STEM games-a} te pohađa i kolegij na Raspodjeljeni razvoj programske potpore (Distributed software development) koje se održava na FER-u u suradnji sa sveučilištima Mälardalen University u Švedskoj i Politecnico di Milano u Italiji. Diplomski studiji završava 2018. godine pod mentorstvom prof.dr.sc. Luke Grubišića.
 \end{cv}
 
 \end{document}
