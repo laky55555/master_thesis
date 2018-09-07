@@ -1,0 +1,839 @@
+% Predlozak za pisanje diplomskog rada na PMF-MO
+% Opcenita uputstva za LaTeX se mogu npr. naci na 
+% http://web.math.hr/nastava/rp3, http://web.math.hr/nastava/s4-prof/latex.pdf
+% NE PREPORUCA se "Ne baš tako kratak uvod u TEX", buduci se radi o vrlo starom prirucniku
+% koji nije pogodan za moderne verzije LaTEXa.
+% Originalna verzija "The not so short..." na http://tobi.oetiker.ch/lshort/lshort.pdf 
+% je obnovljena i daje bolji uvid u moderne verzije LaTeXa
+
+% Stil je optimiziran za kreiranje pdf dokumenta (npr. pomocu pdflatex-a, XeLaTeX-a)
+
+\documentclass[a4paper,twoside,12pt]{memoir} % jednostrano: promijeniti twoside u oneside
+
+% Paket inputenc omogucava direktno unosenje hrvatskih dijakritickih znakova 
+% opcija utf8 za unicode (unix, linux, mac)
+% opcija cp1250 za windowse
+\usepackage[utf8]{inputenc}  % ukoliko se koristi XeLaTeX onda je \usepackage{xunicode}\usepackage{xltxtra}
+
+% Stil za diplomski, unutra je ukljucena podrska za hrvatski jezik
+\usepackage{diplomski}
+% bibliografija na hrvatskom
+\usepackage[languagenames,fixlanguage,croatian]{babelbib} % zahtijeva datoteku croatian.bdf
+% hiperlinkovi 
+\usepackage[pdftex]{hyperref} % ukoliko se koristi XeLaTeX onda je \usepackage[xetex]{hyperref}
+
+% Odabir familije fontova:
+% koristenjem XeLaTeX-a mogu se koristiti svi fontovi instalirani na racunalu, npr
+% \defaultfontfeatures{Mapping=tex-text}
+% \setmainfont[Ligatures={Common}]{Hoefler Text}
+% ili
+% \newcommand{\nas}[1]{\fontspec{Adobe Garamond Pro}\fontsize{24pt}{24pt}\color{Chocolate}\selectfont #1}
+% i onda \nas{Naslov ...}
+\usepackage{txfonts} % times new roman 
+
+% Paket graphicx sluzi za manipuliranje grafikom 
+\usepackage[pdftex]{graphicx} % ukoliko se koristi XeLaTeX onda je \usepackage[xetex]{graphicx}
+% Paket amsmath je vec ukljucen
+% Dodatno definirane matematicke okoline:
+% teorem (okolina: thm), lema (okolina: lem), korolar (okolina: cor),
+% propozicija (okolina: prop), definicija (okolina: defn), napomena (okolina: rem),
+% slutnja (okolina: conj), primjer (okolina: exa), dokaz (okolina: proof)
+% Definirane su naredbe za ispisivanje skupova N, Z, Q, R i C
+% Definirane su naredbe za funkcije koje se u hrvatskoj notaciji oznacavaju drukcije 
+% nego u americkoj: tg, ctg, ... (\tgh za tangens hiperbolni)
+% Takodjer su definirane naredbe za Ker i Im (da bi se razlikovala od naredbe za imaginarni dio kompleksnog
+% broja, naredba se zove \slika).
+
+\pagestyle{headings}
+% uz paket fancyhdr mogu se lako kreirati fancy zaglavlja i podnozja
+
+% Podaci koje treba unijeti
+\title{OBJEKTNO ORIJENTIRANI PRISTUP METODI KONAČNIH ELEMENATA}
+\author{Ivan Laković}
+\advisor{prof. dr. sc. Luka Grubišić}  % obavezno s titulom (prof. dr. sc ili doc. dr. sc.)
+\date{Rujan, 2018}  % oblika mjesec, godina
+
+% Moguce je unijeti i posvetu
+% Ukoliko nema posvete, dovoljno je iskomentirati/izbrisati sljedeci redak 
+\dedication{Mami, tati, bratu i vama u studiju i režiji}
+
+\begin{document}
+
+% Naredna frontmatter generira naslovnu stranicu, stranicu za potpise povjerenstva, eventualnu posvetu i sadrzaj
+% Moze se iskomentirati ukoliko nije u pitanju konacna verzija
+\frontmatter
+
+% Tekst diplomskog ...
+
+% Diplomski rad treba poceti s uvodnim poglavljem  
+\begin{intro}
+Moderno strojarsko inženjerstvo (kao što je zrakoplovno, biomehaničko i automobilsko) obično koristi metodu konačnih elemenata (MKE) u dizajnu i razvoju novih proizvoda. Nekoliko modernih paketa za MKE uključuje specifične komponente poput toplinskih, elektromagnetskih, tekućih i strukturnih radnih okruženja. U strukturnoj simulaciji, MKE pomaže strahovito u proizvodnji vizualizacije krutosti i snage, kao i smanjenju težine, materijala i troškova. Osim toga samo testiranje postaje ciljano na najslabije komponente te samim time i jeftinije. \cite{wiki_fem_18} \par
+
+Metoda konačnih elemenata numerička je metoda za rješavanje parcijalnih diferencijalnih jednadžbi koja se temelji na fizičkoj diskretizaciji kontinuuma te se koristi za rješavanje problema u inženjerstvu i fizici. Primjeri domena problema su strukturna analiza, prijenos topline, protok tekućine i slično. Početak razvoj metode konačnih elemenata se procjenjuje na četrdeset godine dvadesetog stoljeća. Za rješavanje problema potrebno je izračunati sustav velikog broja algebarskih jednadžbi što ubrzo postaje ne moguće izvesti bez pomoći kompjutera. Samim time javljaju se prvi softveri poput NASA-ino sponzoriranog NASTRAN-a koji se danas broje u desetinama pa i stotinama. Za razliku od prvih softvera današnji se većinom baziraju na programskom jeziku C++ koji je nastao 1985. radi njegove brzine i podrške objektno orijentiranom programiranju. Osim toga većina modernih programa nudi i grafičko sučelje (Autodesk Simulation), ali i programsko sučelje prema višim programskim jezicima poput Python-a, Ruby-a, Julia-e čime se pokušava postići apstrakcija između softvera za rješavanje i specifičnog problema potrebnog za riješiti. \cite{wiki_list_of_fem_software} \par
+
+U ranim 1990-tim objektno orijentirano programiranje (OOP) postaje dominantna programerska paradigma obećavajući mogućnost ponovne upotrebe komponenata i proširenje postojećih putem nasljeđivanja, motivirana rastućoj popularnosti grafičkih korisničkih sučelja. OOP je bazirano na konceptu "objekata" koji najčešće sadrže podatke, te metodama koje izvršavaju neke procedure nad objektima. Samim time gotovo svi softveri za rješavanje problema metode konačnih elemenata nakon toga se razvijaju pomoću objektno orijentirane paradigme koja uvelike olakšava proširenje generalnih značajkih programa na specifične zahtjeve ne toliko raširenih domena. To dovodi do daljnjeg rasta softvera za rješavanje metode konačnih elemenata koji danas obuhvaćaju raznolike probleme i domene.  \par
+
+U ovom radu opisat ćemo OOFEM koji je jedan takav alat, kako ga koristiti pomoću Python-a i komandne linije, te kako mu dodati nove značajke. OOFEM koji je akronim za Object Oriented Finite Element Method je softver za rješavanje problema metode konačnih elemenata razvijen s GNU General Public License što omogućava njegovu slobodnu primjenu i modifikaciju čak i u komercijalne svrhe. Borek Patzak je  započeo razvoj OOFEM-a 1993. godine, te je još uvijek vodeća osoba na projektu i dan danas nadograđuje softver. \par
+
+Rad se sastoji od 3 poglavlja. Nakon Uvoda, u Poglavlju 1 predstavljamo metodu konačnih elemenata gdje će se ukratko opisati najvažnija svojstva potrebna za razumijevanje korištenja softvera za njezino rješavanje. Poglavlje 2 opisuje OOFEM. U njemu će biti predstavljeno što program očekuje kao ulaz, kako ga proširiti u slučaju nepostojanja traženih značajki te njegovo upravljanje putem Python programskog jezika. Također biti će objašnjeno što izlazni podaci znače te kako ih vizualizirati radi jasnije interpretacije rezultata. U trećem poglavlju pokazat ćemo na testnom primjeru kako izgleda učitavanje podatak, izračunavanje, te vizualizacija dobivenih rezultata.
+
+\end{intro}
+
+
+\chapter{Metoda konačnih elemenata}	
+U ovom poglavlju cilj nam je objasniti ključne pojmove vezane uz metodu konačnih elemenata potrebne za razumijevanje računarskih alata za njihovo računanje tako da se njihovo korištenje ne svede samo na "crnu kutiju" kojoj se da ulaz i ona vrati slike. Za početak dat ćemo kratki povijesni uvod. Nakon uvoda radi lakšeg snalaženja opisati ćemo nekoliko konačnih elemenata. Nakon toga, radi motivacije ukratko ćemo objasniti fizikalne poveznice s matematičkom pozadinom što će nam dati bolju intuiciju o samim podacima. Za kraj, pokazat ćemo na jednostavnom primjeru kako bi se ručno riješio problem pomoću metode konačnih elemenata. Radi jednostavnosti i povezanošću s temom rada ograničili smo se samo na probleme mehanike deformabilnih tijela u elastičnom području. Ovo poglavlje se temelji na \cite{jurica_soric}, \cite{coursera} i \cite{wiki_fem_18}.
+
+\section{Razvoj metode konačnih elemenata}
+Iako točan datum izuma metode konačnih elemenata nije poznat, postupak je nastao iz potrebe za rješavanjem složenih problema iz područja elastičnosti i strukturne analize u civilnom i aeronautičkom inženjerstvu. A. Hrennikoff je 1941. godine pokušao riješiti problem teorije elastičnosti pri čemu je na temelju intuicije elastični kontimuum podijelio na više jednostavnih međusobno spojenih štapnih elemenata. Na taj je način kontinuirani sustav zamijenio rešetkastom konstrukcijom za koju je bilo moguće naći rješenje pomoću tada već poznatih standardnih metoda. U Kini, u kasnijim pedesetim i početkom šezdesetih godina, na temelju izračuna konstrukcija brane K. Feng predložio je sustavnu numeričku metodu za rješavanje parcijalnih diferencijalnih jednadžbi. Metoda je nazvana metodom konačnih razlika temeljenih na načelu varijacije, što je bio još neovisni izum metode konačnih elemenata. Iako su ovi pristupi različiti, oni dijele jednu bitnu karakteristiku koja je nadalje postala okosnica metode konačnih elemenata, a to je mrežna diskretizacija kontinuirane domene u skupinu diskretnih poddomena, obično nazvanih elemenata. A. Hrennikoff diskretizira domenu pomoću analogije rešetke, dok R. Courant uzima pristup tako da dijeli domenu u konačne trokutaste podregije za rješavanje eliptičnih parcijalnih diferencijalnih jednadžbi (PDE) drugog reda koji proizlaze iz problema torzije cilindra. Courantov je doprinos bio evolucijski, na temelju velikog broja prethodnih rezultata za PDE koje su razvili Rayleigh, Ritz i Galerkin. \cite{wiki_fem_4} \cite{wiki_fem_5} \par
+
+Podjela elastičnog kontinuuma na više elemenata, koji čine manje dijelove kontinuuma koji se spajaju u zajedničkim točkama, prvi se put pojavljuje u radovima J. H. Argzrisa 1954. goidne i M. J. Turnera, R. W. Clouga, H.C. Martina i L.J. Toppa 1956. godine. Metoda konačnih elemenata dobila je pravi poticaj 1960-ih i 1970-ih godina. Matričnim zapisom u metodama analize konstrukcija omogućava primjenu na računalima što daje dodatni poticaj za daljnji razvoj. To je najbolje vidljivo iz broja publikacija iz metode konačnih elemenata koji naglo raste. Prema \cite{jurica_soric_117}, broj radova je s 10 i 15 1961. godine i 1962. godine narastao na 162 rada 1967. godine te na 303 rada 1968. godine. Rast popularnosti metode konačnih elemenata dobro se vidi iz idućeg grafa s brojem publikacija po godini.
+\begin{figure}[h!t]
+\begin{center}
+\includegraphics[scale=0.5]{pictures/chapter_fem/broj_objavljenih_radova.png}
+\caption{Pregled objavljene literature iz metode konačnih elemenata za razdoblje 1967.-2000. \cite{jurica_soric_76}}
+\end{center}
+\end{figure}
+Paralelno s time rastao je i broj dostupnih softverskih programa. Tako su Abaqus, Adina, Ansys, i drugi softverski paketi nastali već 1970-tih godina od kojih se mnogi i dan danas koriste. Još jedan od ključnih razloga za strmoglavi rast popularnosti je to što se metoda konačnih elemenata počela primjenjivati ne samo u strukturnoj analizi već i u analizi fluida, prijenosu topline, elektrostatičkim problemima i još brojim drugim područjima. \par
+
+Danas su strojarstvo, brodogradnja, zrakoplovstvo, automobilska industrija i građevina nezamislivi bez metode konačnih elemenata koja im pomaže u različitim pogledima čineći krajnji proizvod bolji i jeftiniji. Rastom računalne snage računala te modernog računanja na grafičkim karticama metoda konačnih elemenata može lagano rukovati s vrlo složenim geometrijama što je izdvaja iznad ostalih metoda. Važne značajke su također i to što može obraditi složena ograničenja na rubne uvjete i opterećenja poput pritiska, temperature i inicijalnih sila.
+\begin{figure}[h!t]
+\begin{center}
+\includegraphics[scale=0.3]{pictures/chapter_fem/FEM_primjer.png}
+\caption{Primjer analize problema nadstrešnice u softverskom alatu FreeCAD \cite{youtube_freecad}}
+\end{center}
+\end{figure}
+
+
+\section{Osnovni konačni elementi i njihova primjena}
+Kako je metoda konačnih elemenata numerička metoda koja kontinuum s beskonačno stupnjeva slobode gibanja zamjenjuje s diskretnim modelom međusobno povezanih elemenata postavlja se pitanje kakvi su ti elementi te kakvi sve mogu biti. Ovisno o obliku i nepoznatim parametrima u čvorovima izvedeni su različiti tipovi konačnih elemenata. Veći broj nepoznanica zahtjeva složeniju interpolacijsku funkciju u području elemenata. Jednostavniji konačni elementi koji se najčešće primjenjuju u mehanici deformabilnih tijela prikazani su na idućoj slici. Nepoznati parametri u čvorovima, koji u metodi pomaka u mehanici deformabilnih tijela opisuju pomake i derivacije pomaka, stupnjevi su slobode elemenata. \par
+
+Za linearne funkcije u 2D i 3D, najčešći su elementi prikazani na slici \ref{fig:2d_i_3d_elementi}. Pomoću konačnih elementa za dvodimenzijsku analizu prikazanih na slici moguće je opisati ravninsko stanje naprezanja i deformacije pri čemu su nepoznati parametri u čvorovima dvije komponente pomaka. U 2D, pravokutni elementi se često primjenjuju na analize strukturalnih mehanika. Također se mogu koristiti za granični sloj umrežavanja u računalnoj dinamici fluida i modeliranju toplinskog prijenosa. Elementi za trodimenzijsku analizu s čvorovima sa po tri komponente pomaka u pravcu Kartezijevih koordinatnih osi koji su analogija 2D elemenata poznati su kao heksadedarski elementi i obično se primjenjuju na strukturalnu mehaniku i umrežavanje graničnog sloja. U prijelazu iz heksadedrijskih elemenata graničnog sloja na tetraedarske elemente, piramidalni elementi obično se postavljaju na vrh elementa graničnog sloja.
+
+\begin{figure}[h!t]
+\begin{center}
+\includegraphics[scale=0.47]{pictures/chapter_fem/geometry-and-nodes-linear-elements.png}
+\caption{Položaj čvorova i geometrija za 2D i 3D linearne elemente. \cite{comsol_fem_general}}
+\label{fig:2d_i_3d_elementi}
+\end{center}
+\end{figure}
+
+Na slici \ref{fig:base_triangle_elements} prikazane su funkcije s linearnom osnovom koje definiraju trokutastu mrežu koja je sastavljena od trokutastih linearnih elementa. Temeljne funkcije izražene su kao funkcije položaja čvorova ($x$ i $y$ u 2D i $x$, $y$ i $z$ u 3D).
+
+\begin{figure}[h!t]
+\begin{center}
+\includegraphics[scale=0.42]{pictures/chapter_fem/base-functions-no-overlap.png}
+\caption{Dvije osnovne funkcije koje dijele jedan element vrh, ali se ne preklapaju u 2D domeni. \cite{comsol_fem_general}}
+\label{fig:base_triangle_elements}
+\end{center}
+\end{figure}
+
+\par
+U praksi objekti koje je potrebno modelirati su ne rijetko složeniji te samim time zahtijevaju i složenije konačne elemente. Jedan primjer je element za analizu ljusaka sa šest stupnjeva slobode (položaj čvorova u $x$, $y$ i $z$ osi te rotacije po tim osima) a izvodi se superpozicijom osnovnog pločastog elementa i elementa za dvodimenzijsku analizu. Postoje i složeniji dvostruko zakrivljeni ljuskasti elementi koji u čvorovima mogu imati i znatno više stupnjeva slobode. Također, svaki od prikazanih elementa moguće je proširiti dodavanjem čvorova duž bridova ili po površini elementa. \par
+
+Nadalje dajmo 2 primjera različitih konstrukcija podijeljenih na konačne elemente na koje su primijenjeni elementi iz gornjeg dijela. Na slici \ref{fig:mesh_rim} dajemo primjer podjele naplatka kotača na konačne elemente. Lijeva podjela sastoji se samo od tetraedara kojih ima oko 145,000 s oko 730,000 stupnjeva slobode, dok je desna sastavljena od tetraedara (zeleni), kvadara (plavi) i prizmi (rozi). Desna podjela ima oko 78,000 elemenata i nešto manje od 414,000 stupnjeva slobode što ju čini gotovo dvostruko manjom od lijeve. Na idućoj slici, slika \ref{fig:mesh_spring} imamo dvije različite podjele opterećene opruge na konačne elemente koristeći samo prizme odnosno tetraedre. Dok mreža s prizmama ima oko 504 elemenata i 9526 stupnja slobode, mreža s tetraedrima ima 3652 tetraedra i 23,434 stupnja slobode.
+
+\begin{figure}[h!t]
+\begin{center}
+\includegraphics[scale=0.2]{pictures/chapter_fem/Wheel-rim-mesh-example-large.png}
+\caption{Primjer mrežastog modela automobilskog naplatka \cite{comslo_mesh}}
+\label{fig:mesh_rim}
+\end{center}
+\end{figure}
+
+\begin{figure}[h!t]
+\begin{center}
+\includegraphics[scale=0.6]{pictures/chapter_fem/Loaded-spring-example.png}
+\caption{Primjer mrežastog modela opterećene opruge \cite{comslo_mesh}}
+\label{fig:mesh_spring}
+\end{center}
+\end{figure}
+
+\par
+Kao što je vidljivo iz gornjih slika čak i za relativno jednostavne konstrukcije mreža brzo postaje prevelika za analognu izradu stoga se oslanjamo na softverske programe za njihovu izradu. Što se samog postupka tiče postoji mnogo različitih pristupa izradi mrežastog modela, ali klasifikaciju mreže možemo podijeliti na strukturiranu mrežu, ne strukturiranu te hibridnu koja uzima prednosti svake od nje. Postoji mnogo alata koji služe za pretvaranje modela izrađenih u softverima poput CAD-a, NURBS-a, STL-a u mrežasti model. Neki od popularnijih su GMSH, ICEM, Gridgen. Popularni komercijalni softveri za rješavanje problema pomoću metode konačnih elemenata ujedinjuju dizajniranje modela, pretvorbu modela u mrežasti te računanje metodom konačnih elemenata. Također, radi postizanja točnijih rezultata i manje greške koristi se i h/p-metoda koja mijenja veličinu i stupnjeve slobode elemenata te tako povećava preciznost izračuna na mreži nakon računanja metode konačnih elemenata u kritičnim područjima. Tako dolazimo do iterativnog postupka generiranja mreže koji svakom iteracijom postaje profinjeniji te samim time i točniji. \par 
+
+U ovom radu naglasak je na postupak nakon dobivene mreže stoga se neće ići u dubinu njezine izrade. Više o izradi mreže može se naći u \cite{tadej}
+
+\section{Računanje metode konačnih elemenata}
+Ovo potpoglavlje temelji se na \cite{jurica_soric} i \cite{fem_predavanja_bosna} te pokazuje što je sve potrebno prilikom rješavanja problema metodom konačnih elemenata.
+Postoje dva osnovna pristupa metodi konačnih elemenata. 
+Prva je metoda sila (metoda fleksibilnosti). U metodi sila osnovne nepoznate veličine u problemu koji se analiziraju su sile. Da bi se dobile jednadžbe strukture, prvo se postavljaju jednadžbe ravnoteže. Rezultat je sustav algebarskih jednadžbi u kojima se nepoznate veličine sile određuju iz jednadžbi.
+Drugi pristup je metoda pomicanja (metoda krutosti) u kojoj postoje osnovna nepoznata kretanja u čvorovima. Kako bi se postigli uvjeti kompatibilnosti za rješavanje specifičnih problema, potrebno je da su elementi povezani u čvorovima, uz stranice ili odgovarajuće površine prije i nakon opterećenja. Jednadžbe strukture sadrže pomicanje čvora i koriste se jednadžbe ravnoteže i odnos između sile i pomaka. 
+Od dva gore spomenuta pristupa, popularnija je druga metoda, metoda pomaka. Formulacija metode pomaka slična je mnogim strukturnim problemima. Većina softverskih programa se temelji na metodama kretanja. \par
+
+Nakon što se konstruira mreža međusobno povezanih konačnih elemenata, svakom se elementu pridružuje funkcija pomaka. Svi elementi su izravno ili neizravno povezani, uključujući čvorove i/ili zajedničke granične linije elemenata i/ili zajedničke površine.
+Na temelju poznatih vrijednosti napona i deformacije u jednom čvoru i elementu, moguće je odrediti naprezanja i deformacije za bilo koji drugi čvor i element strukture koja se razmatra i čija su svojstva materijala i opterećenja već poznati. Ukupni broj strukturnih jednadžbi opisuje ponašanje svih čvorova i predstavlja sustav algebarskih jednadžbi koji je najbolje zapisan u obliku matrice \par
+
+Prvi korak nakon diskretizacije domene na konačne elemente je izbor funkcije pomaka. Izbor funkcije pomaka obavlja se za svaki element. Funkcija je definirana unutar elementa i koristi vrijednosti izračunate u čvorovima. Za funkcije pomaka najčešće se izabiru linearni, kvadratni ili kubni polinomi. Polinomi se koriste kao funkcije jer su jednostavni za računanje metode konačnih elemenata. Za dvodimenzionalni element, funkcija pomaka je funkcija koordinata u $xy$ ravnini. Funkcije su nepoznate veličine u čvorovima. Za dvodimenzionalne probleme nepoznate veličine su funkcije koordinata $x$ i $y$.
+Ista funkcija pomaka može se odabrati za svaki element u modelu konačnih elemenata diskretne strukture. Odabrane su funkcije kako bi se postigao kontinuitet pomaka u tijelu korištenjem metode konačnih elemenata između svih elemenata u čvorovima, duž stranica i površine. Nakon odabira funkcije pomaka, uspostavlja se veza između deformacija i pomaka, kao i veza između naprezanja i deformacije. \par
+
+Nadalje, potrebno je uspostaviti vezu između deformacije i pomaka (kinematičke relacije) te vezu između naprezanja i deformacije (konstitutivne jednadžbe). Ukoliko se ograničimo na jednodimenzionalan problem tada postoji deformacija samo u jednom pravcu (pravac $x$). Tada je deformacija $\epsilon_x$ i ona je povezana sa pomakom $u$ u $x$ pravcu. Veza između pomaka i deformacije dana je jednadžbom
+\begin{equation}
+    \label{eq:veza_pomaka_deformacije}
+	\epsilon_x = \frac{du}{dx}
+\end{equation}
+Jednadžba vrijedi za male deformacije i pomake. Jedna od najjednostavnijih konstitutivnih jednadžbi između deformacije i naprezanja je relacija koja se zove Hooke-ov zakon. Za jednodimenzionalni problem veza naprezanja i deformacije je 
+\begin{equation}
+    \label{eq:veza_naprezanja_deformacije}
+    \sigma_x = E * \epsilon_x
+\end{equation}
+gdje je $\epsilon_x$ naprezanje u pravcu $x$, a $E$ modul elastičnosti. \par
+
+Pomoću prethodnih relacija konstruira se matrica krutosti. U početku, matrice krutosti elemenata i jednadžba elemenata određivane su pomoću koeficijenata krutosti, što je izravno povezano sa strukturnom analizom. Nakon toga razvijeno je nekoliko metoda za određivanje matrice krutosti.
+\begin{enumerate}
+    \item Direktan postupak konačnih elemenata (Direct Finite Element Method) -
+    Matrica krutosti povezuje sile u čvorovima elemenata i pomake čvorova. Dobiva se iz ravnotežnih uvjeta za svaki razmatrani element. Izravni pristup računanju matrice krutosti je dobar samo u slučaju jednodimenzionalnih (štapnih) elemenata, međutim, vrlo je prikladan za objašnjenje osnovnog koncepta metode konačnih elemenata.
+    
+    \item Varijacijski prnicipi (Variational Finite Element Methods) -
+    Prilikom rješavanja složenijih, dvodimenzijskih i trodimenzijskih problema teorije elastičnosti, teško je u potpunosti zadovoljiti osnovne relacije konačnih elemenata. To je razlog za primjenu varijacijskih principa u kojima su sadržane relacije teorije elastičnosti pomoću kojih je, uz dopuštenu grešku, moguće provesti približno rješavanje problema. Na taj su način i odgovarajuće jednadžbe teorije elastičnosti približno zadovoljene. Primjer varijacijskih principa su principi virtualnih pomaka i virtualnih sila koji su za rješavanje problema mehanike deformabilnih tijela u elastičnom području ekvivalentni principima minimuma potencijalne energije.
+    
+    \item Metoda težninskog reziduala (Methods of Weighted Residuals) -
+    Ova se metoda temelji na diferencijalnim jednadžbama razmatranog problema. Metoda se koristi kada nije moguće utvrditi funkcional i za probleme u kojima funkcional uopće ne postoji. Od svih metoda težniskog reziduala najpoznatija je Galerkinova metoda. Na temelju metode reziduala dobivene su jednadžbe koje opisuju ponašanje elemenata. U matričnom obliku to izgleda:
+    $$
+    \begin{pmatrix} f_1 \\ f_2 \\ \vdots \\ f_n \end{pmatrix}
+    =
+    \begin{bmatrix}
+    k_{11}       & k_{12} & k_{13} & \dots & k_{1n} \\
+    k_{21}       & k_{22} & k_{23} & \dots & k_{2n} \\
+    k_{n1}       & k_{n2} & k_{n3} & \dots & k_{nn}
+    \end{bmatrix} 
+    \begin{pmatrix} d_1 \\ d_2 \\ \vdots \\ d_n \end{pmatrix}
+    $$
+    $$ f = K * d $$
+    gdje su: \\
+    $f$ vektor sila u čvorovima elementa \\
+    $K$ matrica krutosti elemenata \\
+    $d$ vektor pomaka čvorova elemenata 
+\end{enumerate}
+Osim navedenih postoji još metoda poput Razleigh-Ritzova metode i metode energetske ravnoteže koje nećemo detaljnije opisivati. Korištenjem neke od gore navedenih metoda dobiju se matrice krutosti i jednadžbe pojedinih konačnih elemenata te je kao idući korak potrebno izračunati globalnu matricu krutosti. \par
+
+Primjenom metode direktne superpozicije (Direct Stiffness Method), jedne od metoda koja se danas najčešće primjenjuje za izvođenje globalne jednadžbe konačnih elemenata i globalne matrice krutosti, matrice pojedinih elemenata se kombiniraju. Prilikom primjene metode mora se poštivati koncept kontinuiteta ili kompatibilnosti, što zahtijeva da struktura zadržava cjelovitost to jest, ne smije doći do prekida strukture. Globalna jednadžba strukture u obliku matrice je:
+\begin{equation}
+\label{eq:glob_jed_strukture}
+	F = K * d
+\end{equation}
+gdje su: \\
+$f$ vektor opterećenja u globalnom koordinatnom sustavu \\
+$K$ globalna matrica krutosti \\
+$d$ vektor poznatih i nepoznatih pomaka svih čvorova strukture \\
+
+Globalna matrica krutosti $K$ je simetrična i singularna matrica. Problem singulariteta matrice rješava se uvođenjem rubnih uvjeta tako da struktura zadrži postojeće mjesto i da se ne kreće kao kruto tijelo. Tako matrica krutosti postaje pozitivno definitna što je uvjet za mogućnost rješavanja nehomogenog sustava jednadžbi.
+Formiranje globalne matrice krutosti danas se u računalu najčešče provodi takozvanim postupkom popunjavanja, pri čemu se kinematička matrica transformacije zamjenjuje tablicom iz koje je vidljivo koji lokalni stupnjevi slobode odgovaraju globalnim stupnjevima slobode. Počinje se s nul-matricom te se nadalje popunjava. \par
+
+Rješavanjem gornje jednadžbe matrične strukture (\ref{eq:glob_jed_strukture}) u koju su uneseni rubni uvjeti dobivamo vrijednosti globalnog vektora pomaka $d$. Rješavanje sustava se provodi Gausovom metodom eliminacije ili primjenom neke od iterativinih metoda. Nepoznanice koje se dobiju rješavanjem su pomaci u čvorovima. To su prvi rezultati koji se dobiju primjenom metode konačnih elemenata. \par
+
+Nakon rješavanja globalnog sustava jednadžbi i izračunavanja globalnog vektora pomaka $d$, potrebno je izračunati naprezanje u konačnim elementima. Za dobivanje tih vrijednosti koristimo veze između deformacija, naprezanja i pomaka iz (\ref{eq:veza_pomaka_deformacije}) i (\ref{eq:veza_naprezanja_deformacije}). Pomoću navedenih izraza moguće je odrediti naprezanje u proizvoljnoj točki konačnog elementa. Naprezanja se izračunavanju u težištu elementa, u čvorovima ili u točkama numeričke integracije. Važno je naglasiti da se pri gruboj diskretizaciji mogu naprezanja po rubovima susjednih elemenata znatno razlikovati, odnosno naprezanja koja pripadaju različitim susjednim elementima duž zajedničkog ruba mogu biti različitog iznosa. Razlike se mogu smanjiti usitnjavanjem mreže konačnih elemenata. U slučaju različitih vrijednosti duž rubova, za procjenu stanja naprezanja izračunava se srednja vrijednost. \par
+
+Rezultati dobiveni primjenom metode konačnih elemenata se interpretiraju tako da se odrede mjesta djelovanja najvećih naprezanja i deformacija. Na temelju znanja o materijalima i strukturi tada inženjer donosi daljnje odluke mora li se, i želi li se dizajn strukture mijenjati te se ovisno o odgovoru postupak ponavlja. Računalni programi za naknadnu obradu (vizualizaciju) pomažu inženjerima analizu izradom toplinskih karata "heat map" tako da se dijelovi strukture s većim naprezanjima/deformacijama bojaju u toplije a područja s manjim u hladnije boje. Velik broj softverskih alata za rješavanje metode konačnih elemenata dolazi s ugrađenim softverom za vizualizaciju stoga se iteriranje modela postaje prirodan tok dizajniranja novih struktura.
+
+\begin{figure}[h!t]
+\begin{center}
+\includegraphics[scale=0.35]{pictures/chapter_fem/FEM_visualization_1.jpg}
+\caption{Primjer vizualizacije opterećenja na gredu u softverskom alatu FreeCAD \cite{freefem_wiki_beam}}
+\label{fig:freecad_beam}
+\end{center}
+\end{figure}
+
+\newpage
+\section{Primjer zadatka i rješenja}
+Radi lakšeg razumijevanja prethodnog potpoglavlja, u ovome ćemo napraviti statički proračun sila na jednostavnom dvodiminzijonalnom primjeru sastavljenom od tri štapna elementa. U rješenju zadatka pojaviti će se i nekoliko stvari na koje nismo stavili naglasak u prethodnom dijelu poput vrste materijala i slično. Također, uvodimo i nekoliko novih jednadžbi od kojih su neke analogoni jednodimenzionalnima iz prethodnog dijela. U primjeru prolazimo kroz sve već navedene korake dok ne dobijemo sile i pomake po štapnim elementima. \\
+Zadatak je napraviti: 
+\begin{enumerate}
+    \item Statički proračun sila u štapovima i reakcija u osloncima.
+    \item Pomoću metode konačnih elemenata odrediti pomake čvorova i sile u štapovima
+\end{enumerate}
+
+\begin{figure}[h!t]
+\begin{center}
+\includegraphics[scale=0.6]{pictures/chapter_fem/problem_glavas.png}
+\caption{Zadatak}
+\label{fig:problem__not_noted}
+\end{center}
+\end{figure}
+
+Na slici vidimo problem koji moramo riješiti. Sa slike možemo očitati da se problem sastoji od 3 štapna konačna elementa spojena u 3 zajednička čvora. Također, očito je da je gornji lijevi čvor (čvor 1) fiksan, to jest on se ne može micati (ima 0 stupnjeva slobode). Gornji desni čvor (čvor 2) je slobodan samo u jednom smjeru te se može pomicati lijevo-desno, te donji čvor (čvor 3) nema nikakva ograničenja što mu daje mogućnost pomaka po cijeloj ravnini (2 stupnja slobode). \\
+
+Za prvi dio zadatka koji je preduvjet za računanje pomaka čvorova i sile u štapovima moramo izračunati statičke sile u čvorovima i štapovima. \\
+Radi lakšeg snalaženja konstruiramo vlastitu notaciju tako da je $L_2$ duljina između čvora 1 i 2, a $L_3$ duljina između čvorova 2 i 3. Na slici \ref{fig:problem_noted} su označeni i lokalni koordinatni sustavi za svaki konačni element s plavom bojom te globalni koordinatni sustav s crvenom. Također osim sila $F_1$ i $F_2$ označene su i sile $Fa_x$, $Fa_y$ i $Fb_y$.
+
+\begin{figure}[h!t]
+\begin{center}
+\includegraphics[scale=0.9]{pictures/chapter_fem/problem_glavas_notacija.jpg}
+\caption{Slika s oznakama sila, čvorova i koordinatnih sustava}
+\label{fig:problem_noted}
+\end{center}
+\end{figure}
+
+Prvo izračunamo duljine preostalih štapova:
+$$ L_2 = L * \tan{\alpha} = 2.5 * \tan{30} = 1.44337 m$$
+$$ L_3 = \sqrt{L^2 + L^2_2} = 2.88675 m $$
+
+Statička sila po koordinatnim osima mora biti jednaka nuli.
+Statički proračun sila u štapovima i reakcija u osloncima:
+$$ \sum x = 0 $$
+$$ Fa_x + F_1 = 0 $$
+$$ Fa_x = -F_1 = -15000 N $$
+\newline
+
+$$ \sum Mb_x = 0 $$
+$$ -Fa_y * L - F_2 * L = 0 $$
+$$ Fa_y = \frac{-F_2 * L}{L} = -F_2 = -5000 N $$
+\newline
+
+$$ \sum y = 0 $$
+$$ -Fb_y - Fa_y - F_2 = 0 $$
+$$ Fb_y = -F_2 - Fa_y = 5000 N - 5000 N = 0 N $$
+\newline
+
+
+Da bi mogli koristiti metodu konačnih elemenata moramo uskladiti lokalni i globalni koordinatni sustav tako da se pomaci za svaki čvor računaju u pravom smjeru. Računamo transformacijske matrice i globalne matrice krutosti za sve konačne elemente. \par
+
+\textbf{Konačni element broj 1 (štap između čvorova 1 i 2):} \\
+Os $x$ lokalnog koordinatnog sustava usmjerena je od čvora 1 prema 2 stoga se lokalni i globalni koordinatni sustavi poklapaju te je kut između globalnih i lokalnih os $0^\circ$. \\
+Lokalna matrica krutosti:
+\begin{equation}
+    k_1 = 
+    \begin{bmatrix}
+    1 & 0 & -1 & 0 \\
+    0 & 0 & 0 & 0 \\
+    -1 & 0 & 1 & 0 \\
+    0 & 0 & 0 & 0 \\
+    \end{bmatrix} * \frac{E * A}{L}
+\end{equation}
+Transformacijska matrica:
+\begin{equation}
+    T_1 = I =
+    \begin{bmatrix}
+    1 & 0 & 0 & 0 \\
+    0 & 1 & 0 & 0 \\
+    0 & 0 & 1 & 0 \\
+    0 & 0 & 0 & 1 \\
+    \end{bmatrix} = T^{-1}
+\end{equation}
+Globalna matrica krutosti:
+\begin{equation}
+    K_1 = T^{-1}_1 * k1 * T_1 =
+    \begin{bmatrix}
+    800000 & 0 & -800000 & 0 \\
+    0 & 0 & 0 & 0 \\
+    -800000 & 0 & 800000 & 0 \\
+    0 & 0 & 0 & 0 \\
+    \end{bmatrix}
+\end{equation}
+
+\textbf{Konačni element broj 2 (štap između čvorova 1 i 3):} \\
+Os $x$ lokalnog koordinatnog sustava usmjerena je od čvora 1 prema 3 stoga je kut između globalne i lokalne koordiantene osi $x$ jednak $270^\circ$. \\
+Lokalna matrica krutosti:
+\begin{equation}
+    k_2 = 
+    \begin{bmatrix}
+    1 & 0 & -1 & 0 \\
+    0 & 0 & 0 & 0 \\
+    -1 & 0 & 1 & 0 \\
+    0 & 0 & 0 & 0 \\
+    \end{bmatrix} * \frac{E * A}{L_2}
+\end{equation}
+Transformacijske matrica:
+\begin{equation}
+    T_2 =
+    \begin{bmatrix}
+    0 & -1 & 0 & 0 \\
+    1 & 0 & 0 & 0 \\
+    0 & 0 & 0 & -1 \\
+    0 & 0 & 1 & 0 \\
+    \end{bmatrix}, \qquad
+    T^{-1}_2 =
+    \begin{bmatrix}
+    0 & 1 & 0 & 0 \\
+    -1 & 0 & 0 & 0 \\
+    0 & 0 & 0 & 1 \\
+    0 & 0 & -1 & 0 \\
+    \end{bmatrix}
+\end{equation}
+
+Globalna matrica krutosti:
+\begin{equation}
+    K_2 = T^{-1}_2 * k2 * T_2 =
+    \begin{bmatrix}
+    0 & 0 & 0 & 0 \\
+    0 & 1385646.0921316 & 0 & -1385646.0921316 \\
+    0 & 0 & 0 & 0 \\
+    0 & -1385646.0921316 & 0 & 1385646.0921316 \\
+    \end{bmatrix}
+\end{equation}
+
+\textbf{Konačni element broj 2 (štap između čvorova 2 i 3):} \\
+Os $x$ lokalnog koordinatnog sustava usmjerena je od čvora 2 prema 3 stoga je kut između globalne i lokalne koordiantene osi $x$, pa i $y$ jednak $210^\circ$. \\
+Lokalna matrica krutosti:
+\begin{equation}
+    k_3 = 
+    \begin{bmatrix}
+    1 & 0 & -1 & 0 \\
+    0 & 0 & 0 & 0 \\
+    -1 & 0 & 1 & 0 \\
+    0 & 0 & 0 & 0 \\
+    \end{bmatrix} * \frac{E * A}{L_3}
+\end{equation}
+Transformacijske matrica:
+\begin{equation}
+    T_3 =
+    \begin{bmatrix}
+    -\frac{\sqrt{3}}{2} & -\frac{1}{2} & 0 & 0 \\
+    \frac{1}{2} & -\frac{\sqrt{3}}{2} & 0 & 0 \\
+    0 & 0 & -\frac{\sqrt{3}}{2} & -\frac{1}{2} \\
+    0 & 0 & \frac{1}{2} & -\frac{\sqrt{3}}{2} \\
+    \end{bmatrix}, \qquad
+    T^{-1}_3 =
+    \begin{bmatrix}
+    -\frac{\sqrt{3}}{2} & \frac{1}{2} & 0 & 0 \\
+    -\frac{1}{2} & -\frac{\sqrt{3}}{2} & 0 & 0 \\
+    0 & 0 & -\frac{\sqrt{3}}{2} & \frac{1}{2} \\
+    0 & 0 & -\frac{1}{2} & -\frac{\sqrt{3}}{2} \\
+    \end{bmatrix}, \qquad
+\end{equation}
+
+Globalna matrica krutosti:
+\begin{equation}
+    K_3 = T^{-1}_3 * k3 * T_3 =
+    \begin{bmatrix}
+    519615 & 300000 & -519615 & -300000 \\
+    300000 & 173205 & -300000 & -173205 \\
+    -519615 & -300000 & 519615 & 300000 \\
+    -300000 & -173205 & 300000 & 173205 \\
+    \end{bmatrix}
+\end{equation}
+
+Prije zbrajanja matrica krutosti pojedinih elemenata potrebno ih je proširiti na odgovarajuće dimenzije. Time dobivamo iduće matrice za konačne elemente:
+
+\begin{equation}
+\label{eq:prosirena_k1}
+    K_1 =
+    \begin{bmatrix}
+    800000 & 0 & -800000 & 0 & 0 & 0 \\
+    0 & 0 & 0 & 0 & 0 & 0 \\
+    -800000 & 0 & 800000 & 0 & 0 & 0 \\
+    0 & 0 & 0 & 0 & 0 & 0 \\
+    0 & 0 & 0 & 0 & 0 & 0 \\
+    0 & 0 & 0 & 0 & 0 & 0 \\
+    \end{bmatrix}
+\end{equation}
+
+\begin{equation}
+\label{eq:prosirena_k2}
+    K_2 =
+    \begin{bmatrix}
+    0 & 0 & 0 & 0 & 0 & 0 \\
+    0 & 1385646.0921316 & 0 & 0 & 0 & -1385646.0921316 \\
+    0 & 0 & 0 & 0 & 0 & 0 \\
+    0 & 0 & 0 & 0 & 0 & 0 \\
+    0 & 0 & 0 & 0 & 0 & 0 \\
+    0 & -1385646.0921316 & 0 & 0 & 0 & 1385646.0921316 \\
+    \end{bmatrix}
+\end{equation}
+
+\begin{equation}
+\label{eq:prosirena_k3}
+    K_3 =
+    \begin{bmatrix}
+    0 & 0 & 0 & 0 & 0 & 0 \\
+    0 & 0 & 0 & 0 & 0 & 0 \\
+    0 & 0 & 519615 & 300000 & -519615 & -300000 \\
+    0 & 0 & 300000 & 173205 & -300000 & -173205 \\
+    0 & 0 & -519615 & -300000 & 519615 & 300000 \\
+    0 & 0 & -300000 & -173205 & 300000 & 173205 \\
+    \end{bmatrix}
+\end{equation}
+
+Sada spajanjem matrica krutosti (\ref{eq:prosirena_k1}), (\ref{eq:prosirena_k2}) i (\ref{eq:prosirena_k3}) dobivamo globalnu matricu krutosti čitave strukture.
+
+\begin{equation}
+\label{eq:globalna_matrica_krutosti}
+    K = K_1 + K_2 + K_3 =
+    \begin{bmatrix}
+    800000 & 0 & -800000 & 0 & 0 & 0 \\
+    0 & 1385646.09 & 0 & 0 & 0 & -1385646.09 \\
+    -800000 & 0 & 1385646.09 & 300000 & -519615 & -300000 \\
+    0 & 0 & 300000 & 173205 & -300000 & -173205 \\
+    0 & 0 & -519615 & -300000 & 519615 & 300000 \\
+    0 & -1385646.09 & -300000 & -173205 & 300000 & 1558851.25 \\
+    \end{bmatrix}
+\end{equation}
+
+U prvom dijelu zadatka izračunali smo sile, te sad možemo pomoću njih konstruirati vektor opterećenja.
+\begin{equation}
+\label{eq:vektor_opterecenja}
+    F =
+    \begin{bmatrix}
+    Fa_x \\ Fa_y \\ F_1 \\ Fb_y \\ 0 \\ F_2 \\
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+    -15000 \\ -5000 \\ 15000 \\ 0 \\ 0 \\ -5000 \\
+    \end{bmatrix}
+\end{equation}
+
+Sa slike \ref{fig:problem__not_noted} bili smo očitali da se pomaci mogu dogoditi samo u čvorovima 2 i 3 stoga vektor pomaka koji želimo izračunati izgleda:
+\begin{equation}
+\label{eq:vektor_pomaka}
+    u =
+    \begin{bmatrix}
+    0 \\ 0 \\ u_{x2} \\ 0 \\ u_{x3} \\ u_{y3} \\
+    \end{bmatrix}
+\end{equation}
+
+Sad se pomoću vektora opterećenja (\ref{eq:vektor_opterecenja}), matrice krutosti (\ref{eq:globalna_matrica_krutosti}) računa vektor pomaka (\ref{eq:vektor_pomaka}) po formuli $F = K * u $. Uklanjanjem dijelova gdje nema pomaka dobivamo idući sustav jednadžbi:
+\begin{equation}
+\label{eq:racunanje_pomaka}
+    \begin{bmatrix}
+    15000 \\ 0 \\ -5000 \\
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+    1319615.48 \\ -519615 \\ -300000 \\
+    -519615 \\ 519615 \\ 300000 \\
+    -300000 \\ 300000 \\ 1558851.25 \\
+    \end{bmatrix}
+    *    
+    \begin{bmatrix}
+    u_{x2} \\ u_{x3} \\ u_{y3} \\
+    \end{bmatrix}
+\end{equation}
+
+Rješavanjem sustava dobivamo vektor pomaka
+\begin{equation}
+\label{eq:vektor_pomaka_kratki}
+    u =
+    \begin{bmatrix}
+    0.01875 \\ 0.0208333 \\ -0.00360843 \\
+    \end{bmatrix}
+\end{equation}
+
+te sada cjeloviti vektor pomaka glasi:
+\begin{equation}
+\label{eq:vektor_pomaka_cijeli}
+    u =
+    \begin{bmatrix}
+    0 \\ 0 \\ 0.01875 \\ 0 \\ 0.0208333 \\ -0.00360843 \\
+    \end{bmatrix}
+\end{equation}
+
+Da bi odredili reakcije oslonaca množimo cjelovitu matricu krutosti (\ref{eq:globalna_matrica_krutosti}) sa cjelovitim vektorom pomaka (\ref{eq:vektor_pomaka_cijeli}) $f = K * u$ i dobivamo
+\begin{equation}
+\label{eq:reakcije_oslonaca}
+    f =
+    \begin{bmatrix}
+    -15000 \\ 
+    5000 \\ 
+    15000 \\ 
+    4.54747 \times 10^{-13} \\ 
+    -1.818989 \times 10^{-12} \\ 
+    -5000 \\
+    \end{bmatrix}
+\end{equation}
+
+Za određivanje unutrašnjih sila u štapovima (konačnim elementima) potrebni su nam ukupni pomaci po konačnim elemenata što zahtjeva vraćanje pomaka iz globalnog koordinatnog sustava u lokalni koji se dobiva globalnog množenjem pomaka s odgovarajućom matricom transformacije. Za konačni element 1 ukupni pomak glasi 
+\begin{equation}
+\label{eq:apsolutni_pomak}
+\delta u_1 = u_{x2} - u_{x1}
+\end{equation}
+Pomak u lokalnom koordinatnom sustavu dobivamo s:
+\begin{equation}
+\label{eq:transformacija_u_lokalni}
+    U_1 = T_1 * u_1 = I * u_1 =
+    \begin{bmatrix}
+    1 & 0 & 0 & 0 \\
+    0 & 1 & 0 & 0 \\
+    0 & 0 & 1 & 0 \\
+    0 & 0 & 0 & 1 \\
+    \end{bmatrix} 
+    *
+    \begin{bmatrix}
+    0 \\ 0 \\ 0.01875 \\ 0 \\
+    \end{bmatrix}
+    = 
+    \begin{bmatrix}
+    0 \\ 0 \\ 0.01875 \\ 0 \\
+    \end{bmatrix}
+\end{equation}
+Apsolutni pomak konačnog elementa dobivamo iz jednadžbe (\ref{eq:apsolutni_pomak}) i iznosi $$\delta u_1 = 0.01875 - 0 = 0.1875 $$
+Analogno se dobivaju i apsolutni pomaci konačnih elemenata 2 i 3 koji iznose: 
+$$\delta u_2 = 0.003608425$$
+$$\delta u_3 = 0$$
+Sada imamo sve informacije za izračunati sile u svakom štapu (konačnom elementu) koje iznose:
+$$p_1 = \frac{E * A}{L} * \delta u_1 = 15000 N$$
+$$p_2 = \frac{E * A}{L_2} * \delta u_2 = 5000 N$$
+$$p_3 = \frac{E * A}{L_3} * \delta u_3 = 0 N $$
+
+Ovaj primjer pokazao je na jednostavnoj strukturi što se sve treba izračunati prije dobivanja krajnjih rezultata. Rješavanje se temeljilo na metodi direktne formulacije konačnih elemenata (Direct stiffness method) o kojoj se više detalja može naći u \cite{direct_stiffness_method_article}, \cite{direct_stiffness_method} i u šestom poglavlju \cite{jurica_soric} koja je razvijena posebno za učinkovito i lako implementiranje u računalni softver za procjenu kompliciranih struktura koje sadrže veliki broj jednostavnih konačnih elemenata. Također, danas se velik broj program za rješavanje metode konačnih elemenata temelji na upravo toj metodi.
+
+
+
+\chapter{OOFEM}	
+OOFEM je objektno orijentirani program otvorenoga koda (open source) dizajniran za rješavanje mehaničkih, transportnih i fluidnih problema pomoću konačnih elemenata koji radi na različitim platformama \cite{oofem-web}. U ovom poglavlju detaljno opisujemo softverski program OOFEM. U početku dajemo kratak opis kako se je program razvijao, te njegovo trenutno stanje. U drugom dijelu dajemo opis strukture koda te arhitektonske odluke. Zatim slijede dijelovi gdje se opisuju postojeći konačni elementi i materijali za te konačne elemente te kako dodati nove. Nakon što završimo opis samog programa slijedi što OOFEM očekuje kao ulazne podatke i mogućnosti što sve OOFEM može izračunati. Kako je za OOFEM predviđeno da čita ulazne podatke iz datoteke autori su radi trenutnog stanja u praksi gdje programski jezik Python dobiva sve više na važnosti i popularnosti odlučili omogućiti zadavanje ulaznih podataka programski putem Python-a. U dijelu \ref{poglavlje:koristenje_pythona} objašnjavamo što sve i kako možemo koristiti Python pri zadavanju ulaznih podataka. U posljednjem dijelu poglavlja prikazujemo kako analizirati dobivene rezultate što uključuje validaciju vrijednosti i naknadnu analizu putem vizualizacijskih alata radi lakšeg snalaženja u moru vrijednosti sila i naprezanja. Ovo poglavlje temelji se na web stranici i dokumentaciji OOFEM-a. \cite{oofem_article} \cite{oofem-web}
+
+\section{O OOFEM-u}
+Cilj OOFEM-a je razviti djelotvoran i robustan alat za izračune metode konačnih elemenata te osigurati modularno i proširivo okruženje za budući razvoj. OOFEM je izdan pod licencom za slobodan softver, GNU Lesser General Public License (LGPL). Više o tipu licence može se pronaći na \cite{gnu_licence}, ali ukratko ova licenca dopušta slobodno korištenje, modifikaciju i redistribuciju softvera. OOFEM je u kontinuiranom razvoju od 1997. godine. Projekt je započeo 1993. godine kao dio doktorske disertacije Boreka Patzaka o računalnom modeliranju betonskih konstrukcija i financiran je djelomično od strane ministarstva znanosti i znanstven zaklade Češke Republike, fondova Europske unije i industrije (LMAT, www.lmat-uk.com). Prema Github-u \cite{oofem_github}  i Openhub-u \cite{oofem_openhub} projekt sadrži nešto manje od 300,000 linija koda i na njemu su radila 42 suradnika. Openhub procjenjuje da je u taj projekt uloženo 76 godina rada (COCOMO model) što ga s prosječnom cijenom rada stručne osobe od 200,000 kn po godini čini projekt vrijedan 15,200,000 kuna. Važno je još napomenuti da je većina koda napisana u C++-u koji čini 94\% projekta i da je projekt dobro dokumentiran (28\%, što ga stavlja iznad prosjeka). OOFEM ima mnogo značajki, od kojih nama najvažnije su iduće:
+\begin{itemize}
+    \item Objektno orijentirana arhitektura
+    \item Modularna i proširiva jezgra za računanje metode konačnih elemenata (OOFEMlib)
+    \begin{itemize}
+        \item potpuno proširiva - jezgra programa se može proširiti u bilo kojem "smjeru". Moguće je dodavanje nove vrste konačnih elementa, novog modela materijala s bilo kojim tipom i brojem internih parametara povijesti, novim graničnim uvjetima, numeričkim algoritmima ili modulima analize, kao i sposobnošću dodavanja i upravljanja proizvoljnim stupnjevima slobode.
+        \item neovisna formulacija problema, numeričkog rješavanja i pohrane podataka - jezgra pruža neovisne apstrakcije za analizu, opću numeričku metodu i pohranu podataka (rijetke "sparse" matrice). Koncept mapiranja komponenata omogućuje samostalno formuliranje problema i numeričke metode i omogućuje korištenje bilo koje prikladne numeričke metode za rješavanje problema bez promjene. Ovaj koncept dodatno je poboljšan apstraktnim sučeljem za rijetke matrice, koje omogućuje samostalno formuliranje numeričke metode nad rijetkim matricama.
+        \item potpuna podrška za ponovno pokretanje - jezgra podržava potpuno ponovno pokretanje iz bilo kojeg prethodno spremljenog stanja.
+        \item stupnjevita analiza - omogućuje grupiranje osnovnih problema, prijenos i dijeljenje rješenja polja između osnovnih potproblemima. Opći dizajn omogućuje korištenje različitih diskretizacija za osnovne podprobleme.
+        \item paralelna podrška za procesiranje - temeljena na rastavljanju domene, paradigmama slanja poruka i dinamičnom balansiranju opterećenja računanja. Mnoge strukturne analize mogu se izvoditi paralelno čime se dobivaju velika ubrzanja.
+        \item efikasni algoritmi za rješavanje rijetkih matrica - dostupni su izravni i iterativni algoritmi. Metode izravnog rješavanja uključuju simetrično i nesimetrično rješavanje. Iterativne metode podržavaju mnoge rijetke oblike pohrane i dolaze s nekoliko pretpostavki. Dostupna su i sučelja za biblioteke linearnih metoda za programe poput IML, PETSc (serijski i paralelni), PARDISO, SuperLu i SPOOLES.
+        \item podrška za proširenu metodu konačnih elemenata (eXtended Finite Element Method XFEM) - ugrađena reprezentacija za globalne funkcije obogaćivanja i njihov geometrijski opis. Generalna integracijska pravila pružaju podršku za implementiranje XFEM baziranih algoritama.
+    \end{itemize}
+    \item Modula za strukturnu mehaniku
+        \begin{itemize}
+            \item različite procedure za analizu - linearna statička i linearnu dinamička (analiza vrijednosti svojstvenih vektora, direktne metode integracije - implicitno i eksplicitno); nelinearna statička (CALM rješavanje), nelinearna dinamička (eksplicitna, paralelna verzija)
+            \item velika biblioteka materijala, uključujući najsuvremenije modele za nelinearne mehanike prijeloma kvazi lomljivih materijala. Više o tome u \ref{poglavlje:materials_in_oofem}.
+            \item prilagodiva analiza - linearna i nelinearna 
+            \item napredne značajke modeliranja - čvorovi robovi, lokalni koordinatni sustavi, aktivacija / deaktivacija elemenata i još mnogo toga.
+            \item paralelna analiza - eksplicitna nelinearna dinamika koja koristi metodu razlaganja domene, linearna i nelinearna statička (zahtijeva PETSC).
+        \end{itemize}
+    \item Naknadna analiza (post processing)
+        \begin{itemize}
+            \item ugrađeno X-window procesiranje
+            \item pretvorba izlaza u VTK format za korištenje vizualizacijskih alata poput MayaVi ili ParaView za vizualizaciju na različitim platformama
+        \end{itemize}
+    \item Sučelje prema generatorima mreža T3d i Targe2, te alat za unos podataka iz UNV formata
+    \item Sučelje prema bibliotekama za dobivanje svojstvenih vrijednosti (trenutno su podržani PETSc, SLEPc, IML, PARDISo, SuperLu i SPOOLES) 
+\end{itemize}
+Osim već nabrojanih OOFEM ima i module za rješavanje problema dinamike fluida i prijenosa topline.
+
+\section{Struktura koda OOFEM-a}
+U poglavlju o metodi konačnih elemenata vidjeli smo da postoji više načina rješavanja i nekoliko različitih problema (strukturna analiza, analizi fluida, prijenosu topline, elektrostatičkim problemi) koji se rješavaju na gotovo isti način, kao i velik broj različitih konačnih elemenata koji moraju poštivati zajednička svojstva. Sve to nam nameće ideju o objektno orijentiranom pristupu. Tim su se principom vodili i arhitekti OOFEM programa. Tako se cijela arhitektura OOFEM-a bazira na nasljeđivanju općenitih apstraktnih klasa koje implementiraju specifična svojstva za određeni problem. Na slici \ref{fig:numerical_method_inheritance} vidimo jedan takav primjer.
+\begin{figure}[h!t]
+\begin{center}
+\includegraphics[scale=0.46]{pictures/chapter_oofem/NumericalMethod_inheritance.png}
+\caption{Dijagram nasljeđivanja apstraktne klase NumericalMethod \cite{oofem_reference}}
+\label{fig:numerical_method_inheritance}
+\end{center}
+\end{figure}
+Na slici je prikazan dijagram nasljeđivanja za baznu klasu koja opisuje što sve numeričke metode za specifične probleme poput rješavanja linearnog sustava moraju implementirati. Također na slici vidimo da nasljeđivanje ide u dubinu do čak 3 razine čemu je razlog to što se na prvoj razini grana na numeričke metode koje rješavaju različite probleme, a tek kasnije uvode implementacije za rješavanje tih problema. \par
+Nadalje, dat ćemo opis svih najvažnijih klasa u OOFEM-u, njihove uloge, međusobnu komunikaciju i stabla nasljeđivanja. Informacije su dobivene iz izvornog koda na \cite{oofem_github} i automatsko kreiranoj dokumentaciji  na \cite{oofem_reference} i \cite{oofem_programmer}. Okosnica program su iduće klase: EngngModel, Domain, NumericalMethod i FEMComponent. Iz tih klasa izniču gotovo sve ostale funkcionalnosti te su upravo one zaslužne za apstrakciju i objektno orijentirani pristup. \par
+
+Klasa koja obuhvaća, te kasnije i inicijalizira sve ostale je \textbf{EngngModel}. EngngModel je apstrakcija za problem koji se razmatra. Ona je prva klasa koji se inicijalizira i predstavlja vrstu analize koju treba izvršiti, te implementira komunikaciju sa svim svojim atributima. Izvedene klase poput FluidModel i LinearStatic "znaju" sastaviti jednadžbe i fizičko značenje pojedinih komponenti. One su odgovorne za formiranje upravljačke jednadžbe za svaki korak rješavanja, obično zbrajanjem doprinosa pojedinih elemenata i čvorova. Glavne funkcije klase EngngModel su:
+\begin{itemize}
+    \item Parsiranje ulaza (ulazne datoteke) na zasebne domene i spremanje rezultata
+    \item Spremanje i vraćanje stanja u/iz kontekstnih datoteka
+    \item Sastavljanje jednadžbi zbrajanjem doprinosa iz problemskih domena (obično od čvorova i elemenata)
+    \item Rješavanje problema opisanih jednadžbama pomoću prikladnih numeričkih metoda. To zahtijeva povezivanje numeričkih metoda karakterističnih elemenata s komponentama jednadžbi. EngngModel mora mapirati svaku komponentu jednadžbe (koja ima fizičko značenje) odgovarajućoj numeričkoj komponenti numeričke metode
+    \item Prekinuti vremenski korak ažuriranjem vrijednosti čvorova i elementa (uključujući ažuriranje integracijskih točaka)
+\end{itemize}
+Koje sve probleme OOFEM "zna" riješiti možemo vidjeti tako da pogledamo tko sve implementira klasu EngngModel. Grafički prikaza toga dan je na slici \ref{fig:engngModel_inheritance}
+
+\begin{figure}[h!t]
+\begin{center}
+\includegraphics[scale=0.38]{pictures/chapter_oofem/EngngModel_inheritance.png}
+\caption{Dijagram nasljeđivanja apstraktne klase EngngModel \cite{oofem_reference}}
+\label{fig:engngModel_inheritance}
+\end{center}
+\end{figure}
+
+\par
+Iduća važna klasa koja je sadržana kao atribut unutar EngngModel klase je \textbf{Domain}. Mreža čvorova i elemenata je reprezentirana pomoću nje, te su unutar Domain klase spremljene sve komponente modela metode konačnih elemenata poput čvorova, stupnjeva slobode (Degree Of Freedom, DOF), materijala, rubnih uvjeta itd. Svaki EngngModel ima barem jednu domenu koja omogućuje apstrakciju te se brine za daljnju komunikaciju s njezinim elementima. Najvažnije funkcije domene su:
+\begin{itemize}
+    \item Konstruiranje objekata pročitanih s ulaza. To uključuje čitanje i parsiranje mreže s ulaza te konstrukciju odgovarajućih komponenata pravoga tipa.
+    \item Pružanje generaliziranog pristupa pojedinim komponentama domene.
+    \item Filtriranje izlaza za određene korake, elemente i čvorove tokom rješavanja
+\end{itemize}
+
+\par
+
+Kao što smo već vidjeli na slici \ref{fig:numerical_method_inheritance} apstraktna klasa koja omogućava lagano dodavanje novih matematičkih metoda rješavanja pojedinih problema je \textbf{NumericalMethod}. Engng model može koristiti različite numeričke metode, ovisno, na primjer, o veličini problema ili prethodnoj konvergenciji. Svaka pojedina instanca Engng modela odgovorna je za mapiranje njezinih jednadžbi na odgovarajuće numeričke komponente. Takvo mapiranje omogućuje implementiranje numeričkih metoda neovisno od određenog fizičkog problema. Samim time, numerička metoda može predstavljati i sučelje za algoritam napisan u C-u ili Fortranu. Klase izvedene iz numeričke metode trebale bi objaviti sučelje za specifičnu vrstu problema (poput rješenja linearnog sustava). Treba naglasiti da sve numeričke metode koje rješavaju isti problem koriste isto sučelje (isto mapiranje) - to se provodi korištenjem iste osnovne klase osnovnih problema. Primjer toga je problem rješavanja rijetkog linearnog sustava deklariranog klasom SparseLinearSystemNM. Stoga je moguće riješiti problem s bilo kojom prikladnom numeričkom metodom za klasifikaciju i ostaviti cijeli model, uključujući i mapiranje, nepromijenjen jer sve instance klase pružaju zajedničko sučelje. \par
+
+Klasa s najvećim brojem nasljeđivanja i najdubljim stablom je \textbf{FEMComponent} klasa. Na slici \ref{fig:FEMComponent_inheritance} se može vidjeti to stablo koja radi svoje veličine nije moglo stati stoga nekim čvorovima nisu ni sva djeca prikazana.
+
+\begin{figure}[h!t]
+\begin{center}
+\includegraphics[scale=0.26]{pictures/chapter_oofem/FEMComponent_inheritance.png}
+\caption{Dijagram nasljeđivanja apstraktne klase FEMComponent. Čvorovima s crvenim okvirom nisu prikazana djeca. \cite{oofem_reference}}
+\label{fig:FEMComponent_inheritance}
+\end{center}
+\end{figure}
+
+FEMComponent klasu implementiraju svi objekti koji su u vezi s konačnom metodom elemenata. Tako se među klasama koje implementiraju mogu pronaći rubni uvjeti, inicijalni uvjeti, funkcije sa silama, materijali konačnih elemenata te i sami konačni elementi. FEMComponent definira atribute i metode zajedničke svim komponentama mreže: elementima, čvorovima, vremenskim koracima, materijalima, opterećenjima i funkcijama učitavanja. Ova klasa definira dva atributa zajednička svim komponentama konačnih elemenata. "Broj" koji se prvenstveno koristi za čitanje podataka u podatkovnoj datoteci i "domena" koja se koristi za komunikaciju s drugim komponentama (npr. za element koji će dobiti svoj materijal), za pristup koordinatnom sustavu i podatkovnoj datoteci. U idućim potpoglavljima detaljnije ćemo opisati klase koje opisuju materijale od kojih se konačni elementi mogu sastojati i klase konačnih elemenata.
+
+
+\section{Materijali u OOFEM-u}
+\label{poglavlje:materials_in_oofem}
+
+\subsection{Dodavanje novog materijala}
+d
+
+\section{Konačni elementi u OOFEM-u}
+k
+\subsection{Dodavanje novog konačnog elementa}
+d
+
+\section{Ulazni podaci}
+u
+
+\section{Korištenje OOFEM alata iz Pythona}
+\label{poglavlje:koristenje_pythona}
+k
+
+\section{Vizualizacija rezultata}
+v
+
+
+
+\chapter{Testni primjer}
+asdfasdf
+
+\section{Problem}
+p
+
+\section{Generiranje ulaznih podataka}
+p
+
+\section{Rješavanje problema}
+r
+
+\section{Vizualizacija dobivenih rezultata}
+v
+
+
+
+
+
+
+
+
+
+\chapter[Naslov poglavlja u sadržaju][Kratki naslov poglavlja]{Naslov poglavlja}	
+% ukoliko naslov nije jako dugacak dovoljno je samo \chapter{Naslov poglavlja} 
+
+\section[Naslov sekcije u sadržaju][Kratki naslov sekcije]{Naslov sekcije}
+\subsection{Naslov podsekcije}
+\begin{thm}
+Iskaz teorema u kojem se javljaju skupovi  $\N$, $\Z$, $\Q$, $\R$ i $\C$.
+\end{thm}
+\begin{conj}
+Iskaz slutnje u kojoj se javljaju funkcije $\tg$, $\tgh$ i $\sh$.
+\end{conj}
+\begin{cor}
+Iskaz posljedice u kojoj se javljaju skupovi $\Ker T$ i $\slika T$..
+\end{cor}
+\begin{proof}
+Dokaz posljedice se nalazi u \cite{kljuc}. Pogledajte i \cite{kurepa1956convex}, \cite{kurepa1981funkcionalna} te \cite{Dutkay:2009}.
+\end{proof}
+jsfdsqF
+SG
+SFG
+FSG
+DF
+GS
+FG
+SFG
+SFG
+
+SFG
+
+SG
+SDFG
+SF
+GS
+
+DG
+ SD
+S
+
+
+SD
+ 
+
+DFGSDFG
+
+
+SDGSDF
+
+
+SDGSDGF
+
+
+SDGFSFDG
+
+
+SDGSDG  sdfsfg f fdh fgj gh jgjk jkj k yk k klk l fs fd gsdfg dfh dfghj fj ghjk gjk jlk sdf 
+$x_1+x_2+x_3+x_4=12$ $x_1+x_2+x_3+x_4=12$
+ $x_1+x_2+x_3+x_4=12$ $x_1+x_2+x_3+x_4=12$ $x_1+x_2+x_3+x_4=12$ $x_1+x_2+x_3+x_4=12$
+ $x_1+x_2+x_3+x_4=12$ $x_1+x_2+x_3+x_4=12$ $x_1+x_2+x_3+x_4=12$
+$x_1+x_2+x_3+x_4=12$ 
+SDGSG sdfsfg f fdh fgj gh jgjk jkj k yk k klk l fs fd gsdfg dfh dfghj fj ghjk gjk jlk sdf sfdh j fj tuk ugad h j yrtu iru i
+\[ z \left( 1 \ +\ \sqrt{\omega_{i+1} + \zeta -\frac{x+1}{\Theta +1} y + 1}
+\ \right) =  1 \]
+
+GSDFGSDFG
+
+
+
+\begin{equation}
+\label{eq:jed111}
+	1+1=2
+\end{equation}
+
+SDG
+SDFGS
+
+SDFGSFG
+
+
+SFGSFG
+
+
+SDFGSFG
+
+
+SDGSFG
+
+\label{stranica}
+Na stranici \pageref{stranica} se nalaza slika u \textbf{png} formatu.
+% slike smiju biti u svim formatima koje podrzava pdf (pdf, jpg, png)
+\begin{figure}[h!t]
+\begin{center}
+\includegraphics[scale=0.5]{mosaic-from-pompeii.png}
+\caption{Prva slika}
+\end{center}
+\end{figure}
+
+Na slici \ref{fig:3d} se nalazi 3D graf neke funkcije. 
+
+\begin{figure}[h!t]
+\centering \includegraphics{surface3d.png}
+\caption{Druga slika}
+\label{fig:3d}
+\end{figure}
+
+kao i jedna vrlo komplicirana formula koja slijedi iz \eqref{eq:jed111}
+\[ \sum_{i=1}^{\infty}A_{x_1}\times A_{{\alpha}_2}\oslash\iint_{\Omega}x^2\ddagger\limsup_{n\in\N}\frac{\alpha+\theta+\gamma}{n^{\omega}}\;\;\text{je u stvari}\;\;\biguplus_{r\in\Q}\overline{\Xi_i \mathop\Theta_{\substack{j\in\C \\ j\ni i\Q}} \Upsilon^{k^j} \underset{\ast}{\Psi} \hslash\vert_{\{\alpha\}}}.\]
+
+% Na kraju diplomkog rada stavlja se  bibliografija
+% Najprije definiramo nacin prikazivanja bibliografije, u ovom slucaju verzija amsplain stila
+\bibliographystyle{babamspl} % babamspl ili babplain
+
+% U datoteku diplomski.bib se stavljaju bibliografske reference
+% Bibliografske reference u bib formatu se mogu dobiti iz MathSciNet baze, Google Scholara, ArXiva, ...
+\bibliography{diplomski}
+
+\pagestyle{empty} % ne zelimo brojanje sljedecih stranica
+
+% I na koncu idu sazeci na hrvatskom i engleskom
+
+\begin{sazetak}
+Ukratko ...
+\end{sazetak}
+
+\begin{summary}
+In this ...
+\end{summary}
+
+% te zivotopis
+
+\begin{cv}
+Dana ...
+\end{cv}
+
+\end{document}
