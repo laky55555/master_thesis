@@ -44,6 +44,59 @@
 % Takodjer su definirane naredbe za Ker i Im (da bi se razlikovala od naredbe za imaginarni dio kompleksnog
 % broja, naredba se zove \slika).
 
+
+
+\usepackage{listings}
+\usepackage{xcolor}
+
+
+% \lstset{
+% backgroundcolor=\color{lbcolor},
+%     tabsize=4,    
+% %   rulecolor=,
+%     language=[GNU]C++,
+%         basicstyle=\scriptsize,
+%         upquote=true,
+%         aboveskip={1.5\baselineskip},
+%         columns=fixed,
+%         showstringspaces=false,
+%         extendedchars=false,
+%         breaklines=true,
+%         prebreak = \raisebox{0ex}[0ex][0ex]{\ensuremath{\hookleftarrow}},
+%         frame=single,
+%         numbers=left,
+%         showtabs=false,
+%         showspaces=false,
+%         showstringspaces=false,
+%         identifierstyle=\ttfamily,
+%         keywordstyle=\color[rgb]{0,0,1},
+%         commentstyle=\color[rgb]{0.026,0.112,0.095},
+%         stringstyle=\color[rgb]{0.627,0.126,0.941},
+%         numberstyle=\color[rgb]{0.205, 0.142, 0.73},
+% %        \lstdefinestyle{C++}{language=C++,style=numbers}’.
+% }
+% \lstset{
+%     backgroundcolor=\color{lbcolor},
+%   }
+
+\lstset { %
+    language=C++,
+    backgroundcolor=\color{black!5}, % set backgroundcolor
+    tabsize=4,
+    frame=lines,
+    numbers=left,
+    numberstyle=\tiny,
+    numbersep=2pt,
+    breaklines=true,
+    showstringspaces=false,
+    basicstyle=\tiny,
+    keywordstyle=\color[rgb]{0,0,1},
+    commentstyle=\color[RGB]{0,156,0},
+    stringstyle=\color{red},
+}
+
+\addto\captionscroatian{\renewcommand{\lstlistingname}{Kod}}
+
 \pagestyle{headings}
 % uz paket fancyhdr mogu se lako kreirati fancy zaglavlja i podnozja
 
@@ -58,6 +111,8 @@
 \dedication{Mami, tati, bratu i vama u studiju i režiji}
 
 \begin{document}
+
+
 
 % Naredna frontmatter generira naslovnu stranicu, stranicu za potpise povjerenstva, eventualnu posvetu i sadrzaj
 % Moze se iskomentirati ukoliko nije u pitanju konacna verzija
@@ -603,6 +658,7 @@ Cilj OOFEM-a je razviti djelotvoran i robustan alat za izračune metode konačni
 Osim već nabrojanih OOFEM ima i module za rješavanje problema dinamike fluida i prijenosa topline.
 
 \section{Struktura koda OOFEM-a}
+\label{poglavlje:struktura_koda}
 U poglavlju o metodi konačnih elemenata vidjeli smo da postoji više načina rješavanja i nekoliko različitih problema (strukturna analiza, analizi fluida, prijenosu topline, elektrostatičkim problemi) koji se rješavaju na gotovo isti način, kao i velik broj različitih konačnih elemenata koji moraju poštivati zajednička svojstva. Sve to nam nameće ideju o objektno orijentiranom pristupu. Tim su se principom vodili i arhitekti OOFEM programa. Tako se cijela arhitektura OOFEM-a bazira na nasljeđivanju općenitih apstraktnih klasa koje implementiraju specifična svojstva za određeni problem. Na slici \ref{fig:numerical_method_inheritance} vidimo jedan takav primjer.
 \begin{figure}[h!t]
 \begin{center}
@@ -611,7 +667,7 @@ U poglavlju o metodi konačnih elemenata vidjeli smo da postoji više načina rj
 \label{fig:numerical_method_inheritance}
 \end{center}
 \end{figure}
-Na slici je prikazan dijagram nasljeđivanja za baznu klasu koja opisuje što sve numeričke metode za specifične probleme poput rješavanja linearnog sustava moraju implementirati. Također na slici vidimo da nasljeđivanje ide u dubinu do čak 3 razine čemu je razlog to što se na prvoj razini grana na numeričke metode koje rješavaju različite probleme, a tek kasnije uvode implementacije za rješavanje tih problema. \par
+Na slici je prikazan dijagram nasljeđivanja za osnovnu klasu koja opisuje što sve numeričke metode za specifične probleme poput rješavanja linearnog sustava moraju implementirati. Također na slici vidimo da nasljeđivanje ide u dubinu do čak 3 razine čemu je razlog to što se na prvoj razini grana na numeričke metode koje rješavaju različite probleme, a tek kasnije uvode implementacije za rješavanje tih problema. \par
 Nadalje, dat ćemo opis svih najvažnijih klasa u OOFEM-u, njihove uloge, međusobnu komunikaciju i stabla nasljeđivanja. Informacije su dobivene iz izvornog koda na \cite{oofem_github} i automatsko kreiranoj dokumentaciji  na \cite{oofem_reference} i \cite{oofem_programmer}. Okosnica program su iduće klase: EngngModel, Domain, NumericalMethod i FEMComponent. Iz tih klasa izniču gotovo sve ostale funkcionalnosti te su upravo one zaslužne za apstrakciju i objektno orijentirani pristup. \par
 
 Klasa koja obuhvaća, te kasnije i inicijalizira sve ostale je \textbf{EngngModel}. EngngModel je apstrakcija za problem koji se razmatra. Ona je prva klasa koji se inicijalizira i predstavlja vrstu analize koju treba izvršiti, te implementira komunikaciju sa svim svojim atributima. Izvedene klase poput FluidModel i LinearStatic "znaju" sastaviti jednadžbe i fizičko značenje pojedinih komponenti. One su odgovorne za formiranje upravljačke jednadžbe za svaki korak rješavanja, obično zbrajanjem doprinosa pojedinih elemenata i čvorova. Glavne funkcije klase EngngModel su:
@@ -635,6 +691,7 @@ Koje sve probleme OOFEM "zna" riješiti možemo vidjeti tako da pogledamo tko sv
 \par
 Iduća važna klasa koja je sadržana kao atribut unutar EngngModel klase je \textbf{Domain}. Mreža čvorova i elemenata je reprezentirana pomoću nje, te su unutar Domain klase spremljene sve komponente modela metode konačnih elemenata poput čvorova, stupnjeva slobode (Degree Of Freedom, DOF), materijala, rubnih uvjeta itd. Svaki EngngModel ima barem jednu domenu koja omogućuje apstrakciju te se brine za daljnju komunikaciju s njezinim elementima. Najvažnije funkcije domene su:
 \begin{itemize}
+    \label{text:domain}
     \item Konstruiranje objekata pročitanih s ulaza. To uključuje čitanje i parsiranje mreže s ulaza te konstrukciju odgovarajućih komponenata pravoga tipa.
     \item Pružanje generaliziranog pristupa pojedinim komponentama domene.
     \item Filtriranje izlaza za određene korake, elemente i čvorove tokom rješavanja
@@ -654,26 +711,364 @@ Klasa s najvećim brojem nasljeđivanja i najdubljim stablom je \textbf{FEMCompo
 \end{center}
 \end{figure}
 
-FEMComponent klasu implementiraju svi objekti koji su u vezi s konačnom metodom elemenata. Tako se među klasama koje implementiraju mogu pronaći rubni uvjeti, inicijalni uvjeti, funkcije sa silama, materijali konačnih elemenata te i sami konačni elementi. FEMComponent definira atribute i metode zajedničke svim komponentama mreže: elementima, čvorovima, vremenskim koracima, materijalima, opterećenjima i funkcijama učitavanja. Ova klasa definira dva atributa zajednička svim komponentama konačnih elemenata. "Broj" koji se prvenstveno koristi za čitanje podataka u podatkovnoj datoteci i "domena" koja se koristi za komunikaciju s drugim komponentama (npr. za element koji će dobiti svoj materijal), za pristup koordinatnom sustavu i podatkovnoj datoteci. U idućim potpoglavljima detaljnije ćemo opisati klase koje opisuju materijale od kojih se konačni elementi mogu sastojati i klase konačnih elemenata.
+FEMComponent klasu implementiraju svi objekti koji su u vezi s konačnom metodom elemenata. Tako se među klasama koje implementiraju mogu pronaći rubni uvjeti, inicijalni uvjeti, funkcije sa silama, materijali konačnih elemenata te i sami konačni elementi. FEMComponent definira atribute i metode zajedničke svim komponentama mreže: elementima, čvorovima, vremenskim koracima, materijalima, opterećenjima i funkcijama učitavanja. Ova klasa definira dva atributa zajednička svim komponentama konačnih elemenata. "Broj" koji se prvenstveno koristi za čitanje podataka u podatkovnoj datoteci i "domena" koja se koristi za komunikaciju s drugim komponentama (npr. za element koji će dobiti svoj materijal), za pristup koordinatnom sustavu i podatkovnoj datoteci. U idućim potpoglavljima detaljnije ćemo opisati klase koje opisuju materijale od kojih se konačni elementi mogu sastojati i klase konačnih elemenata. \par
 
+Zanimljivo je još i vidjeti kako sve te klase međusobno komuniciraju, to jest kako su one povezane. Dobar uvid u to nam daje slika \ref{fig:EngngModel_connections} gdje su prikazane poveznice između klasa. Na slici se vidi kako na apstraktnoj razini klase međusobno komuniciraju, to jest kako čitav softver zapravo i radi. Što se raspodijele koda u direktorije tiče, u repozitoriju \cite{oofem_github} se nalaze mnogi direktoriji od kojih ćemo se mi koncentrirati u većoj ili manjoj mjeri na iduće: bindings, doc, src i tools. U direktoriju doc se nalazi se dokumentacija u TeX obliku koja se automatski nadopunjuje iz komentara unutar koda. Generirana dokumentacija se nalazi i na \cite{oofem-web} te je bitan izvor svih informacija. Više o direktoriju bindings bit će rečeno u potpoglavlju \ref{poglavlje:koristenje_pythona} jer se tu nalazi sve potrebno za korištenje OOFEM softvera pomoću Python-a. Direktorij tools sadrži različite alate za modifikaciju ulaznih i izlaznih podataka. Posljednji i najvažniji direktoriji je src koji sadrži sam kod softvera. Unutar tog direktorija nama najvažniji bit će sm koji se odnosi na strukturnu analizu. Unutar njega nalaze se svi potrebni i nama zanimljivi elementi poput materijala, konačnih elemenata i modela rješavanja.
+
+\begin{figure}[h!t]
+\begin{center}
+\includegraphics[scale=0.2, angle=90]{pictures/chapter_oofem/EngngModel_connections.png}
+\caption{Dijagram s poveznicama između apstraktnih klasa OOFEM-a. \cite{oofem_reference}}
+\label{fig:EngngModel_connections}
+\end{center}
+\end{figure}
 
 \section{Materijali u OOFEM-u}
 \label{poglavlje:materials_in_oofem}
+Osnovna klasa za sve materijalne modele je klasa Material, izvedena iz FEMComponent. Klasa Material implementira sučelje nezavisno uz samu analizu. Dio sučelja potreban za analizu trebaju dodati izvedene klase, koje predstavljaju osnovne klase za određeni problem. Tipičan primjer je klasa \textbf{StructuralMaterial} za strukturalni materijal koji izlaže sve usluge potrebne za strukturnu analizu i na koju ćemo se kao što je rečeno u prethodnom dijelu najviše koncentrirati. Izravno izvedene klase poput SturucturalMaterial moraju implementirati specifične dijelove konačnih elemenata i poprečnog presjeka za domensku problematiku što su na primjeru klase StructuralMaterial klase StructuralElement i StructuralCrossSection koje su apstraktne osnovne klase za sve "strukturalne" konačne elemente.
+Kako bi se pohranile sve potrebne varijable povijesti modela materijala, usvaja se takozvani koncept stanja. Stanje materijala može se smatrati spremnikom svih potrebnih povijesnih varijabli. Obično se pohranjuju dvije vrste varijabli, privremene i trajne. Privremene se odnose na stvarno stanje integracijske točke, ali ne moraju odgovarati globalnoj ravnoteži. Te se promjene mijenjaju tijekom iteracija pretraživanja ravnoteže. Trajne varijable odnose se na prethodno konvergirano stanje. Za svaki model materijala mora biti definiran odgovarajuće stanje i mora biti stvorena i pridružena jedinstvena instanca za svaku integracijsku točku. Za prije navedeni materijal SturcturalMaterial to je klasa StructuralMaterialStatus koja je također apstraktna te predstavlja osnovnu za implementaciju stanja pojedinih materijala. U idućem dijelu dajemo detaljan opis jednog materijala za strukturnu analizu te što je sve potrebno za njegovu implementaciju.
 
-\subsection{Dodavanje novog materijala}
-d
+\subsection{Primjer materijala}
+U ovom odjeljku opisat će se implementacija materijala izotropnog oštećenja. Za pokrivanje raznih modela temeljenih na izotropnom konceptu oštećenja, najprije se definira osnovna klasa IsotropicDamageMaterial koja implementira sve zajedničke značajke. Izvedene klase onda samo implementiraju određene zakone o evoluciji oštećenja.
+Modeli izotropnih oštećenja temelje se na pojednostavljenoj pretpostavci da je degradacija krutosti izotropna, to jest moduli krutosti koji odgovaraju različitim smjerovima smanjuju se proporcionalno i neovisno o smjeru djelovanja sila. Posljedično, matrica krutosti oštećenja izražava se kao:
+$$ D = (1 - \omega) * D_\epsilon$$
+gdje je $D_\epsilon$ elastična matrica krutosti neoštećenog materijala i $\omega$ je parametar oštećenja. U početku, $\omega$ je postavljen na nulu, što predstavlja "novi" neoštećeni materijal i reagira linearno elastično. Budući da materijal prolazi kroz deformaciju širenje mikro nedostataka smanjuje krutost, što je predstavljeno rastom parametra $\omega$ oštećenja. Za $\omega = 1$, krutost u potpunosti nestaje. U trenutnom kontekstu, matrica $D$ predstavlja krutost koja se odnosi na omjer naprezanja i sile
+$$\sigma = D \epsilon = (1 - \omega) D_\epsilon \epsilon$$
+Slično teoriji plastičnosti, uvodi se funkcija sile $f$. U teoriji oštećenja prirodno je raditi u prostoru naprezanja i stoga funkcija sile ovisi o naprezanju i o dodatnom parametru $\kappa$, opisujući evoluciju štete. Fizikalno, $\kappa$ je skalar najveće razine napetosti koju je materijal dosegao. Funkcija sile obično ima oblik 
+$$f(\epsilon, \kappa) = \widetilde{\epsilon} (\epsilon) - \kappa$$
+gdje je $\widetilde{\epsilon}$ jednak naprezanju. Ostaje povezati varijablu $\kappa$ s parametrom $\omega$ oštećenjem. Budući da oba $\kappa$ i $\omega$ rastu monotonno, prikladno je pretpostaviti eksplicitnu jednadžbu:
+$$ \omega = g(\kappa) $$
+Važna prednost ove eksplicitne formulacije je da se sila koja odgovara danom naprezanju može izravno procijeniti, bez potrebe za rješavanjem nelinearnog sustava jednadžbi.
+Ovaj opći okvir za računanje naprezanja i matrice krutosti je uobičajen za sve materijalne modele ove vrste. Dakle, prirodno je uvesti osnovnu klasu za sve modele izotropnih oštećenja koji osiguravaju opću
+implementacija algoritama za evaluaciju matrice sila i krutosti. Pojedini modeli zatim pružaju samo njihov ekvivalent naprezanju i oštećenju. Tako se na primjer za definiciju naprezanja po Mazarsu (1984) dovoljno uvrstiti njegovu formulu naprezanja
+$$ \widetilde{\epsilon} = \sqrt{\sum^3_{I=1} \langle \epsilon_I \rangle^2 }$$
+Također, kao što je prije i navedeno za svaki materijal potrebno je implementirati i klasu stanja pa se tako implementira i IsotropicDamageMaterialStatus. Za izotropsko bazirane modele oštećenja jedina varijabla koju je potrebno pamtiti jest najveće dostignuto naprezanje ($\kappa$). Osim toga implementira se i metoda za pristupanje i promjenu naprezanja.
+
+\begin{figure}[h!t]
+\begin{center}
+\includegraphics[scale=0.4]{pictures/chapter_oofem/IsotropicDamageMaterial_inheritance.png}
+\caption{Dijagram apstraktne klase nasljeđivanja materijala izotropskog oštećenja. \cite{oofem_reference}}
+\label{fig:IsotropicDamageMaterial_inheritance}
+\end{center}
+\end{figure}
+
 
 \section{Konačni elementi u OOFEM-u}
-k
-\subsection{Dodavanje novog konačnog elementa}
-d
+\label{poglavlje:finite_elements_in_oofem}
+Glavna bazna apstraktna klasa za sve konačne elemente je \textbf{Element}. Glavna svrha ove klase jest implementacija osnovnih značajki koje su zajedničke svim konačnim elementima (kao što su pohranjivanje referenci na materijal elementa, čvorovi, opterećenja, sastavljanje polja lokacije, pohranjivanje iz/u kontekstnu datoteku i slično). Klasa Element ne implementira niti jednu metodu koja se odnosi na određenu analizu već ih samo deklarira te dopušta izvedenim klasama da ih implementiraju. Direktna djeca obično definiraju opće usluge potrebne za određenu svrhu analize poput matrica krutosti i mase za strukturalnu analizu ili matrice procjene kapaciteta i provodljivosti za analizu prijenosa topline. Na slici \ref{fig:Element_inheritance} vidimo kako izgleda stablo nasljeđivanja klase Element. Nadalje, kao i ranije koncentrirat ćemo se na strukturalnu analizu, to jest konačne elemente koji nasljeđuju klasu \textbf{StructuralElement} koja je osnovna klasa za sve konačne elemente strukturalne analize. Konkretnije, nakon opisa klase StructuralElement opisat ćemo i klasu Truss1d koja opisuje štapni element u dvodimenizionalnom prostoru. \par
+
+
+\begin{figure}[h!t]
+\begin{center}
+\includegraphics[scale=0.21]{pictures/chapter_oofem/Element_inhereitnace.png}
+\caption{Dijagram nasljeđivanja osnovne klase Element. \cite{oofem_reference}}
+\label{fig:Element_inheritance}
+\end{center}
+\end{figure}
+
+Klasa StrukturalElement deklarira sve potrebne potrebne metode i atribute koje zahtijeva strukturalna analiza poput metode računanja matrica krutosti, opterećenja, naprezanja i vektora sila. 
+Osnovni zadaci strukturalnog elementa su izračunavanje doprinosa globalnim jednadžbama ravnoteže (matrice mase i krutosti, različitih vektora opterećenja zbog graničnih uvjeta, sile opterećenja, toplinskog opterećenja itd.) i izračunavanje odgovarajućih naprezanja i sila iz pomaka čvorova. Radi toga se deklariraju odgovarajuće virtualne metode za računanje tih doprinosa. Ti standardni doprinosi mogu se izračunati numeričkom integracijom odgovarajućih struktura, koji tipično ovise o interpolaciji elemenata ili tipu materijala, u odnosu na volumena elemenata. Stoga je moguće osigurati opće definicije tih metoda, pod uvjetom da se primjenjuju odgovarajuće metode za računanje interpolacije materijala i da su inicijalizirana odgovarajuća integracijska pravila i uvjeti. Kao primjer toga dajemo računanje matrice krutosti. Budući da matrica krutosti elemenata doprinosi globalnoj ravnoteži, krutost će biti zatražena korištenjem metode \textit{giveCharacteristicMatrix}. Implementacija metode strukturalnog elementa uzima u obzir samo materijalnu nelinearnost (geometrijska nelinearnost se ne uzima u obzir te se za elemente u kojima geometrijska nelinearnost igra ulogu očekuje da se ova metoda nadjača). Matrica krutosti elementa može se izračunati koristeći se formulom:
+$$ K = \int_V B^T D B dV $$
+gdje je $B$ takozvana geometrijska matrica koja sadrži derivacije funkcija oblika, a $D$ je matrica krutosti materijala. Numerička integracija koristi se za procjenu tog integralnog. Za numeričku integraciju koristi se klasa \textit{IntegrationRule}. Pravila integracije za određeni element kreiraju se tijekom inicijalizacije elementa i pohranjuju se u polju \textit{integrationRulesArray} kao atribut klase, naslijeđen iz klase Element. \par
+
+Nadalje slijede neki implementacijiski detalji klase \textit{Truss1d}. Nju uzimamo kao primjer što je sve potrebno implementirati za jedan konačan element ukoliko želimo dodati novi koji još nije implementiran. Također, vjerojatnost potrebe za dodavanjem novih dosta je mala jer OOFEM već sadrži oko 70tak različitih konačnih elemenata. \textit{Truss1d} (štapni element u 1D) predstavlja linearni izoparametrski rešetkasti element u 1D određen s dva čvora. Pretpostavlja se da se elementi nalaze duž x-osi. Element zahtjeva da mu je područje poprečnog presjeka određeno. Sama implementacija izvedena je u 400tinjak linija koda, a mi ćemo dati kratki opis datoteke zaglavlja i najvažnije metode koje zaglavlje deklarira kao i neke od implementacije jednostavnijih metoda. \textit{Truss1d} (štapni element) služi pri strukturalnoj analizi stoga nasljeđuje klasu \textit{StructuralElement}. Od važnijih metoda implementira virtualnu metodu computenumberOfDofs koja vraća broj 2, a označava broj stupnjeva slobode. Zatim slijede implementacija za računanje interpolacijske i geometrijske matrica. Obje metode računaju rješenja na danim integracijskim točkama koje dobivaju kao parametre. Dajemo kod za računanje interpolacijeske matrice pomaka:
+
+\begin{lstlisting}[caption={Računanje interpolacijske matrice za štapni element u 1D}]
+void
+Truss1d :: computeNmatrixAt(const FloatArray &iLocCoord, FloatMatrix &answer)
+// Returns the displacement interpolation matrix {N} of the receiver,
+// evaluated at gp.
+{
+    FloatArray n;
+    this->interp.evalN( n, iLocCoord, FEIElementGeometryWrapper(this) );
+    // Reshape
+    answer.resize(1, 2);
+    answer.at(1, 1) = n.at(1);
+    answer.at(1, 2) = n.at(2);
+}
+\end{lstlisting}
+
+Samo zaglavlje elementa izgleda ovako:
+\begin{lstlisting}[caption={Datoteka zaglavlja za štapni element u 1D}]
+#ifndef truss1d_h
+#define truss1d_h
+
+...
+
+namespace oofem {
+class FEI1dLin;
+
+/**
+ * This class implements a two-node truss bar element for one-dimensional
+ * analysis.
+ */
+class Truss1d : public StructuralElement{
+
+...
+
+public:
+    Truss1d(int n, Domain * d);
+    virtual ~Truss1d() { }
+
+    virtual FEInterpolation *giveInterpolation() const;
+
+    virtual void computeLumpedMassMatrix(FloatMatrix &answer, TimeStep *tStep);
+    virtual void computeMassMatrix(FloatMatrix &answer, TimeStep *tStep)
+    { computeLumpedMassMatrix(answer, tStep); }
+
+    virtual int computeNumberOfDofs() { return 2; }
+    virtual void giveDofManDofIDMask(int inode, IntArray &) const;
+
+    // characteristic length (for crack band approach)
+    virtual double giveCharacteristicLength(const FloatArray &normalToCrackPlane)
+    { return this->computeLength(); }
+
+    virtual double computeVolumeAround(GaussPoint *gp);
+    
+    virtual void computeStressVector(FloatArray &answer, const FloatArray &strain, GaussPoint *gp, TimeStep *tStep);
+    virtual void computeConstitutiveMatrixAt(FloatMatrix &answer, MatResponseMode rMode, GaussPoint *gp, TimeStep *tStep);
+
+    virtual int testElementExtension(ElementExtension ext) { return 0; }
+
+    virtual Interface *giveInterface(InterfaceType it);
+
+    virtual MaterialMode giveMaterialMode() { return _1dMat; }
+    
+    ...
+    
+protected:
+    virtual void computeBmatrixAt(GaussPoint *gp, FloatMatrix &answer, int = 1, int = ALL_STRAINS);
+    virtual void computeBHmatrixAt(GaussPoint *gp, FloatMatrix &answer);
+    virtual void computeNmatrixAt(const FloatArray &iLocCoord, FloatMatrix &answer);
+    virtual void computeGaussPoints();
+
+};
+} // end namespace oofem
+#endif // truss1d_h
+
+\end{lstlisting}
+
+Iz same datoteke zaglavlja vidimo da je poveći broj metoda već implementiran i to samo jednom linijom, te preostale poput već navedene \textit{computeBmatrixAt} se svode na pozivanje već gotovih metoda nad-klasa. Važno je još napomenuti metodu \textit{computeGaussPoints} čija implementacije izgleda ovako:
+
+\begin{lstlisting}[caption={Inicijalizacija integracijskog pravila za štapni element}]
+void Truss1d :: computeGaussPoints()
+// Sets up the array of Gauss Points of the receiver.
+{
+    if ( integrationRulesArray.size() == 0 ) {
+        integrationRulesArray.resize(1);
+        integrationRulesArray[0] = std::make_unique<GaussIntegrationRule>(1, this, 1, 2);
+        this->giveCrossSection()->setupIntegrationPoints(* integrationRulesArray[0], 1, this);
+    }
+}
+\end{lstlisting}
+
+Kada se element stvori (pomoću klase \textit{Domain}), zove se zadani konstruktor. Implementacija elementa najprije treba nazvati implementaciju roditelja kako bi se osiguralo da se atributi deklarirani na razini roditelja pravilno iniciraju. Zatim element mora inicirati atribute koji su sami deklarirani, kao i postaviti pravila integracije. U našem primjeru, posebna metoda computeGaussPoints poziva se za inicijalizaciju pravila integracije. U tom se slučaju stvara samo jedna pravilo integracije. To je tipa GaussIntegrationRule, što ukazuje da se koristi Gaussova integracija. Jednom kada se stvori pravilo integracije, njegove su integracijske točke stvorene da predstavljaju linijski integral s 1 integracijskom točkom. Integracijske točke bit će povezane s elementom koji se razmatra i imat će 1D način rada (koji određuje vrstu odgovora na model materijala).
+
+Na ovom jednostavnom primjeru prikazali smo kako implementirati konačni element. Implementirani konačni element ima svojstva opisana u tablici \ref{tab:svojstva_stapnog_elementa}:
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{| m{9em} | m{25em}|} 
+ \hline
+ \textbf{Ključna riječ} & \textbf{truss1d} \\ [1ex]
+ Opis & 1D štapni element \\
+ Specifični parametri & - \\
+ \hline
+ Nepoznanice & Jedan stupanj slobode u svakom čvoru \\ 
+ Aproksimacije & Linearna aproksimacija pomaka i geometrije \\
+ Integracija & Egzaktna \\
+ Zančajke & Putpuna podrška za dinamičku analizu, podrška za prilagodbe \\
+ Svojstva poprečnog presjeka & Površina je obavezna \\
+ Opterećenja & Opterećenja na element su podržana. Granična opterećenja nisu podržana u trenutačnoj implementaciji\\
+ Stanje & Pouzdan \\
+ \hline
+\end{tabular}
+\caption{Sažetak svojstva štapnog 1D elementa}
+\label{tab:svojstva_stapnog_elementa}
+\end{table}
+
 
 \section{Ulazni podaci}
-u
+\label{poglavlje:koristenje_oofema}
+Predviđen način rada OOFEM-a je takav da se prvo pomoću njihovih alata za predobradu poput unv2oofem ili ručnim unosom konstruira datoteka koju će program uzeti kao ulaz, u kojoj se nalaze svi potrebni podaci za analizu u prigodnom obliku. U ovom potpoglavlju opisat ćemo kako ta datoteka treba izgledati. Prilikom opisa koncentrirat ćemo se na izgleda datoteke za strukturalnu analizu. Potpuna dokumentacija za sve tipove analiza kao i za paralelnu obradu može se pronaći na \cite{oofem-web}. \par
+
+Kao što je već navedeno, idući opis opisuje ulazne podatke za strukturalnu analizu. Prilikom opisa tekst unutar navodnika je primjer teksta koji se zapravo unosi u datoteku s ulaznim podacima. Prilikom navođenja niza brojeva (bez obzira je li niz relanih ili cijelih brojeva) prvo se navodi duljina niza i zatim vrijednosti. Tako primjerici bit će primjer s koordinatama čvora i izgledat će ovako: \textit{coords 3 0.  2.7  10.} gdje je 3 duljina niza a 0, 2.7 i 10 su vrijednosti. Poredak unutar datoteke nije važan ali radi jasnijeg opisa kao i čitanja preporuča se idući redoslijed:
+\begin{enumerate}
+    \item Ime datoteke izlaza - npr. "izlazni\_podaci.out"
+    \item Opis analize - proizvoljan tekst koji je će ispisati u izlaznoj datoteci npr. "Analiza tri štapna elementa"
+    \item Tip analize s atributima - Nužni parametri su nmsteps koji predstavljaju niz koraka rješenja s istim zajedničkim atributima te atributi. Ukoliko želimo izvesti rješenje potrebno je nadodati broj modula za izvoz s ključnom riječi nmodules i broj, npr. "StaticStructural nsteps 1 nmodules 2"
+    \item Modul izvoza podataka (dodatni parametar) - ukoliko želimo izvesti rješenje za naknadnu analizu u nekom drugom programu izabire se željeni tip izvoza podataka, npr. "vtkxml tstep\_all, domain\_all"
+    \item Opis domene zadatka - Najopsežniji dio datoteke, ovisno o analizi može biti i više domena, ali u našem slučaju biti će jedna. U slučaju više domena ulaz se zadaje analogno. U opisu domene nalazi se sve što je u dijelu poglavlja \ref{text:domain} kod opisa klase \textit{Domain} opisano.
+    \begin{enumerate}
+        \item Tip domene - Neke od postojećih domena su: \textit{2dPlaneStress} ili \textit{2d-Truss} za analize s 2 stupnja slobode po čvoru (pomaci $u$ i $v$), \textit{3d} za analize s 3 stupnja slobode (pomaci po $u$, $v$ i $w$, \textit{3dShell} za analize sa 6 stupnjeva slobode (pomaci i rotacije po svakoj osi). Za primjer možemo uzeti "domain 2dPlaneStress"
+        \item Način ispisa - Filter koji određuje koje će se sve informacije ispisivati, to jest za koje čvorove, elemente i korake želimo informacije, npr. "OutputManager tstep\_all dofman\_all element\_all"
+        \item Veličina domene - Broje pojedinih dijelova unutar domene, to jest broj čvorova, elemenata, poprečnih presjeka, materijala, rubnih uvjeta zajedno s opterećenjima, početnih uvjeta, funkcija vremena i skupova podataka. U primjeru dani su brojevi za dijelove domene u istom redoslijedu: "ndofman 6 nelem 5 ncrosssect 1 nmat 1 nbc 3 nic 0 nltf 1 nset 3"
+        \item Skup stupnjeva slobode - Ovaj tip parametra sakuplja više stupnjeva slobode u jedan element. Najčešći tip je čvor. Osim čvora postoje i viseći čvorovi, stjenka elemenata, PFEM čestice i drugi. Nadalje koristimo čvorove. Čvor prihvaća koordinate u globalnom koordinatnom sustavu (ako drugačije nije navedeno) te neobavezne varijable za početne i rubne uvijete kao i opterećenje. "node 1 coords 3 0.  0. 10."
+        \item Konačni element - Jedan od elemenata opisanih u potpoglavlju \ref{poglavlje:finite_elements_in_oofem}. Konačni element zahtjeva čvorove koji ga opisuju npr. "Truss2d 1 nodes 2 1 4"
+        \item Skupovi - Mogu biti skupovi čvorova, konačnih elemenata itd. Koristi se za spajanje regija elemenata s rubnim uvjetima, poprečnim profilima i inicijalnim uvjetima kao na primjer kad želimo uključiti utjecaj gravitacije na sve elemente. Dajemo dva primjera jer se skupovi mogu koristiti na različite načine: "Set 1 elementranges {(1 3)}", "Set 2 nodes 3 1 2 3"  
+        \item Poprečni presjek - Za varijable poprečnog presjeka mogu se koristiti \textit{SimpleCS}, \textit{VariableCS}, \textit{LayeredCS}, \textit{FiberedCS} i \textit{WarpingCS}. Najjednostavniji je SimpleCS koji opisuje poprečni presjek s konstantnim značajkama i zadaje se s širinom i duljinom, a u 3D analizi odgovarajući volumen i ostale dimenzije automatski se dobivaju. Osim toga mogu mu se pridodati materijal i konačne elemente na koje se taj presjek odnosi. Primjer, "SimpleCS 1 thick 0.1 width 1.0 material 1 set 1"
+        \item Materijal - Neki od materijala opisanih u \ref{poglavlje:materials_in_oofem} dijelu. Nakon tipa materijala dolazi njegova gustoća i specifične značajke ovisno o materijalu. Tako za prijašnji primjer za izotropski linearni elastični materijal  definicija izgleda "IsoLE 1 d 1. E 1.0 n 0.2  tAlpha 0.000012" gdje je E Yungova konstanta, a n Poissonov omjer.
+        \item Rubni uvjeti i opterećenje - Dio sa svim tipovima opterećenja i uvjeta. Što se rubnih uvjeta tiče, postoji ih nekolina a mi ćemo izdvojiti: \textit{BoundaryCondition} (Dirichletov rubni uvjet), \textit{NodalLoad} (koncentrirano opterećenje u pojedinom čvoru) i LinearConstraintBC (rubni uvjet koji implemenetira ogranićenje u obliku $\sum_i w_i r_i = c$ gdje su $r_i$ nepoznanice vezane uz stupnjeve slobode određene čvorovima dok se težine $w_i$ unosi). Primjer jednog rubnog uvjeta koji fiksira čvorove iz skupa 2 je "BoundaryCondition 1 loadTimeFunction 1 dofs 2 1 3 values 2 0.0 0.0 set 2". 
+        Osim rubnih uvjeta u ovu skupinu parametara pripadaju i opterećenja poput \textit{DeadWeight}, \textit{StructEigenstrainLoad}, \textit{ConstantEdgeLoad} i \textit{LinearEdgeLoad}. Za primjer \textit{ConstantEdgeLoad} označava opterećenje po rubu konačnog elementa i prihvaća iduće tipove uvjeta s njihovim kodovima, Neumannove (2), Newtonove (3) i Stefan-Boltzmannove (7) rubne uvjete. Kao i kod rubnih uvjeta, opterećenja također imaju parametar \textit{loadTimeFunction} koja prihvaća identitet vremenske funkcije s kojom se uvjeti skaliraju. Kao primjer opterećenja dajemo iduće opterećenje: "LinearEdgeLoad 3 loadTimeFunction 1 dofs 2 1 3 Components 4 1.0 0.0 1.0 0.0 loadType 3"
+        \item Vremenske funkcije - Kao što je već navedeno prije vremenske funkcije nam omogućavaju skaliranje uvjeta kroz vrijeme kod analize u više koraka. Neke od funkcija vremena su \textit{ConstantFunction} u kojoj se zadaje konstanta i \textit{PeakFunction} u kojoj je zadana konstantna vrijednost za točno jednu vremensku točku te je za sve ostale jednaka 0. Primjer konstantne funkcije je "ConstantFunction 1 f(t) 1.0"
+    \end{enumerate}
+\end{enumerate}
+
+Važno je još napomenuti da unutar datoteke ulaza svaka linija predstavlja jedan ulazni podatak, te linije koje počinju sa znakom \textit{\#} smatraju se komentarima te se zanemaruju. Radi boljeg razumijevanja dajemo sadržaj jedne takve datoteke ulaza. Da bi primjer bio jasniji prilažemo i strukturu po kojoj je ulaz modeliran.
+
+\begin{figure}[h!t]
+\begin{center}
+\includegraphics[scale=0.51]{pictures/chapter_oofem/structure_to_analyze.png}
+\caption{Model strukture koju je potrebno analizirati. \cite{oofem-web}}
+\label{fig:Structure_to_analyze}
+\end{center}
+\end{figure}
+
+\lstinputlisting[language=python, label={code:oofem_input_file}, caption={Primjer datoteke ulaza za OOFEM}]{beam2d_1.in}
+
 
 \section{Korištenje OOFEM alata iz Pythona}
 \label{poglavlje:koristenje_pythona}
-k
+Nakon što smo opisali kako je OOFEM predviđen za korištenje, dajemo i nama najvažnije opis, kako koristiti OOFEM iz programskog jezika Python. U prvom poglavlju ukratko smo opisali što je metoda konačnih elemenata i kako ju koristiti, a u drugom pokazali smo kako koristiti OOFEM. Sada ćemo pokazati 2 načina na koje se može koristiti OOFEM iz Python-a. Prvi način koji nam nije pretjerano zanimljiv bazira se u potpunosti na načinu korištenja kao što se koristi i iz komandne linije putem učitavanja svih parametra iz datoteke ulaza. Onda rješavanje problema izgleda ovako:
+
+\begin{lstlisting}[language=python, label={code:python_oofem_from_file}, caption={Pokretanje OOFEM alata pomoću Python-a i učitavanje ulaznih podataka iz datoteke}]
+import liboofem
+
+podaci = liboofem.OOFEMTXTDataReader("analiza_stapa_u_2d.in")
+problem = liboofem.InstanciateProblem(podaci, liboofem.problemMode._processor, 0)
+problem.checkProblemConsistency()
+problem.setRenumberFlag()
+problem.solveYourself()
+problem.terminateAnalysis()
+\end{lstlisting}
+
+Prije nego što opišemo drugi način korištenja gdje se svi ulazni podaci konstruiraju pomoću Python objekata, ukratko ćemo opisati što je sve potrebno učiniti da bi mogli koristiti biblioteku \textit{liboofem}, kako je to omogućeno i što nam ona nudi. \par
+
+Da bi se C++ kod mogao koristiti putem Python-a potrebno je zadovoljiti neke preduvjete. Pri tome postoji nekoliko načina, a autori OOFEM-a odlučili su se za korištenje Boost.Python biblioteke koja je dio boost C++ kolekcije. Boost je velik projekt koji sadrži više od 150 biblioteka i više od 23 milijuna linija koda za C++. Boost.Python je C++ bibliteka koja omogućuje besprijekornu interoperabilnost između C++-a i programskog jezika Python. Boost.Python omogućuje brz i lagan izvoz C++ koda u Python tako da se novonastalo sučelje gotovo ni ne mijenja u odnosu na C++ sučelje. Korištenjem Boost.Python biblioteke jedino potrebno za korištenje OOFEM-a jest definirati sve klase, metode i funkcije koje će se koristiti direktnim pozivanjem iz Python-a. To je učinjeno u datoteci \textit{oofemlib.cpp} koju se može pronaći na adresi \cite{oofemlib_source}. Datoteka s definicijama sadrži gotovo 2000 linija te definira Python biblioteku liboofem koju smo vidjeli u isječku koda \ref{code:python_oofem_from_file}. Važno je još reći da se prilikom kompiliranja OOFEM-a mora postaviti varijabu "USE\_PYTHON\_BINDINGS" na "ON" tako da se kompilira i datoteka \textit{oofemlib.cpp} te da se onda dobivena binarna datoteka \textit{liboofem.so} mora postaviti negdje gdje Python "gleda" module tako se liboofem može uključiti "importati" u Python. Više informacija o Boost.Python-u i generalno korištenju C++ koda u Python-u može se pronaći na \cite{boost_python}, \cite{ctypes} i \cite{swig}. \par
+
+Nakon što smo opisali kako se kod napisan u C++-u uopće može koristiti u Python-u, opisati ćemo neke od mogućnosti koje nam \textit{liboofem} Python biblioteka daje te ćemo dati primjer kako je i koristiti. Kao što smo i opisali Boost.Python je omotač oko C++ koda stoga je glavna motivacija prijašnjeg (\ref{poglavlje:koristenje_oofema}) potpoglavlja bila upoznavanje mogućnosti OOFEM programa. Sada ćemo pokazati kako te iste funkcionalnosti koristiti iz Python-a, ali i neke dodatne mogućnosti koje nam samo Python okruženje nudi poput iteraktivnog ispitivanja pojedinih elemenata te grafički prikaz željenih vrijednosti. \par
+
+Primjer kombinacije Python-ovih mogućnosti (točnije korištenjem matplotlib biblioteke) s mogućnostima OOFEM-a moguće je konstruirati mrežasti model i odmah ga i vizualizirati. Pokretanjem idućeg (\ref{code:python_oofem_matplotlib}) koda, dobiva se slika \ref{fig:visualization_of_mesh_grid_oofem}.
+
+\begin{lstlisting}[language=python, label={code:python_oofem_matplotlib}, caption={Konstrukcija mrežastog modela i vizualizacija}]
+from mpl_toolkits.mplot3d import Axes3D
+from matplotlib import cm
+import matplotlib.pyplot as plt
+import numpy as np
+
+import liboofem
+
+# inicijalizacija uniformne mreze
+mreza = liboofem.UniformGridField()
+
+# postavljanje mreze na 2D geometriju
+mreza.setGeometry(lo=(0,0),hi=(1,1),div=(2,2))
+
+# mreza se proteze na 2x2 znaci da imamo 3x3 cvora, potrebno nam je 9 vrijednosti
+mreza.setValues([-4, -3, -2, -1, 0, 1, 2, 3, 4])
+
+# vizualizaciju zelimo na malo sirem podrucju
+X,Y=np.meshgrid(np.arange(-.5,1.5,.1),np.arange(-.5,1.5,.1))
+
+# funkcija koja vraca vektor vrijednosti u koordinatama
+@np.vectorize
+def vrijednost_na_koordinatama(x,y):
+    return mreza.evaluateAtPos((x,y))[0]
+
+Z = vrijednost_na_koordinatama(X,Y)
+
+# vizualizacija pomocu matplotliba
+fig = plt.figure()
+ax = fig.gca(projection='3d')
+surf = ax.plot_surface(X, Y, Z, linewidth=1, rstride=1, cstride=1,cmap=cm.coolwarm, shade=True)
+plt.show()
+\end{lstlisting}
+
+\begin{figure}[h!t]
+\begin{center}
+\includegraphics[scale=0.61]{pictures/chapter_oofem/liboofem_mesh_grid.png}
+\caption{Vizualizacija uniformne pravokutne mreže konstruirane putem \textit{liboofem} biblioteke putem Pythona.}
+\label{fig:visualization_of_mesh_grid_oofem}
+\end{center}
+\end{figure}
+
+Sama mreža čvorova, kao i svi ostali elementi analize mogu se i individualno konstruirati što ćemo pokazati na idućem primjeru koda. Kod usko prati sve navedene korake iz prijašnjega potpoglavlja \ref{poglavlje:koristenje_oofema} što će biti jasno vidljivo, i modelira primjer sa slike \ref{fig:Structure_to_analyze} te je analogon ulaznoj datoteci \ref{code:oofem_input_file} za analizu pomoću OOFEM-a putem komandne linije. Nakon same analize moguće je, kao i u prošlom primjeru konstruirati razne vizualizacije što prepuštamo čitateljima radi toga da sam kod bude što čišći i relevantniji samoj zadaći koja je opisivanje korištenja \textit{liboofem-a} radi analize konačnih elemenata.
+
+\lstinputlisting[language=python, label={code:python_oofem_full_example}, caption={Korištenje OOFEM putem Python-ovog sučelja}]{uredeni_primjer.py}
+
+Važno je još napomenuti da omotač oko C++ koda programa OOFEM ne obuhvaća sve moguće značajke u jednakom obimu. Tako primjerice iz gornjeg koda vidjeli smo da se može koristiti konačni element greda u dvodimenizionalnom prostoru (\textit{liboofem.beam2d}), ali radi lakšeg prototipiranja i bolje apstrakcije koda ostali konačni elementi nisu tako definirani. Definiciju \textit{beam2d} konačnog elementa može se pronaći u datoteci \textit{oofemlib.cpp} na adresi \cite{oofemlib_source} između 1544-te i 1585-e linije koji izgleda ovako:
+
+\begin{lstlisting}[caption={Implementacija omotača oko generalnog konačnog elementa i specifičnog konačnog elementa \textit{beam2d}}]
+/*****************************************************
+* Element
+*****************************************************/
+// element(aClass,domain=defaultDomain,**kw)
+object element(bp::tuple args, bp::dict kw)
+{
+    // extracts first python argument (string element type)
+    string aClass = extract<string>(args[0])();
+    // extracts values from args if they are specified
+    int number =     len(args)>1? extract<int>(args[1])() : 0;
+    Domain *domain = len(args)>2? extract<Domain*>(args[2])() : nullptr;
+    /* ????????????????
+    // if no material is specified, set it to 1
+    if (!kw.has_key("mat")) { kw["mat"] = 1; }
+    // if no cross section is specified, set it to 1
+    if (!kw.has_key("crosssect")) { kw["crosssect"] = 1; }
+    // if no domain is specified and one already exists in the script, use that one
+    if (domain == nullptr && temp_global.has_key("defaultDomain")) { domain = extract<Domain*>(temp_global["defaultDomain"])(); }
+    if (domain==nullptr) { LOG_ERROR(oofem_errLogger,"wrong Domain"); }
+    ???????????????????? */
+    // create Element (convert aClass to char* - expected by classFactory.createElement)
+    auto elem = classFactory.createElement(aClass.c_str(),number,domain);
+    // if elem==nullptr, something was wrong
+    if (!elem) { OOFEM_LOG_ERROR("element: wrong input data"); }
+    // sets globalNumber == number befor initializeFrom
+    elem->setGlobalNumber(number);
+    // construct OOFEMTXTInputRecord from bp::dict **kw
+    OOFEMTXTInputRecord ir = makeOOFEMTXTInputRecordFrom(kw);
+    // pass input record to elem
+    elem->initializeFrom(&ir);
+    // convert element to PyObject (expected by raw_function, which enables fun(*args,**kw) syntax in python)
+    return object(ptr(elem.release()));
+}
+
+// auxiliary constructor for specific element type (name is passed as first argument)
+object createElementOfType(const char* type, bp::tuple args, bp::dict kw)
+{
+    args = len(args)>1? bp::make_tuple(type,args[0],args[1]) : len(args)>0? bp::make_tuple(type,args[0]) : bp::make_tuple(type);
+    return element(args, kw);
+}
+// specific elements
+object beam2d(bp::tuple args, bp::dict kw) { return createElementOfType("beam2d",args,kw); }
+
+...
+
+BOOST_PYTHON_MODULE (liboofem)
+{
+
+...
+
+    def("element", raw_function(element,1));
+    def("beam2d", raw_function(beam2d,0));
+
+...
+
+}
+\end{lstlisting}
+
+Iz koda je vidljivo da se korisnicima ostavlja mogućnost korištenja svih konačnih elemenata OOFEM-a, ali kroz malo drugačije sučelje. Tako se primjerice za konstrukcija za ostale konačne elemente odvija na idući način:
+
+\begin{lstlisting}[language=python, caption={Primjer konstrukcije konačnih elemenata koji nemaju implementiran direktan poziv}]
+greda_direktno = liboofem.beam2d(1, domain, nodes=(1,2), ...)
+greda_indirektno = liboofem.element('beam2d', 1, domain, nodes=(1,2), ...)
+stap_indirektno = liboofem.element('truss2d', 1, domain, nodes=(1,2), ...)
+\end{lstlisting}
+
+Osim za konačne elemente, identičan postupak se odvija i za ostale komponente koje nasljeđuju klasu \textit{FEMComponent} opisanu u potpoglavlju \ref{poglavlje:struktura_koda} i prikazanu na slici \ref{fig:FEMComponent_inheritance} poput materijala (\textit{Material}), poprečnih presjeka (\textit{CrossSection}), vremenskih funkcija itd. \par
+
+U ovom dijelu prikazali smo više načina korištenja OOFEM-a putem Python-a te nekoliko ideja za nadogradnju što se još može postići. Pokazali smo kako je i gdje implementiran omotač oko C++ koda te kako i gdje u slučaju potrebe i želje treba definirati dodatne metode koje trenutno nisu podržane za interakciju kroz Python. U posljednjem poglavlju pokazujemo još jednom kako koristiti OOFEM i \textit{liboofem} biblioteku za Python za analizu metode konačnih elemenata.
+
 
 \section{Vizualizacija rezultata}
 v
