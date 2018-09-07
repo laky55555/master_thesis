@@ -1115,6 +1115,19 @@ Analogno s primjerom \ref{code:python_oofem_full_example} postavljanje i rješav
 \lstinputlisting[language=python, label={code:zadatak_python_full}, caption={Python program za rješavanje zadatak sa slike \ref{fig:problem__not_noted} inicijalizacijiom svih elemenata putem liboofem biblioteke}]{codes/zadatak_python_full.py}
 
 
+\section{Korištenje PyGmsh-a za izradu mreže i liboofem-a za rješavanje zadatka}
+Ako imamo datoteku s modelom na kojem želimo raditi izračune u formatu koji Gmsh prepoznaje i s kojim zna raditi možemo iskoristiti PyGmsh \cite{pygmsh_github} koji je Python omotač oko Gmsh-a za izradu mrežastog modela iz danog početnog modela. Tako možemo ne mičući se od Pythona, od početnog modela izraditi mrežu po željenim specifikacijama, na nju dodati rubne uvjete, opterećenja, materijale i ostale elemente potrebne za metodu konačnih elemenata te pomoću liboofem-a napraviti izračun koji ćemo kasnije vizualizirati u nekom od za to specifičnih alata poput ParaViewa. U nastavku dajemo kod koji radi upravo navedeno. Kod koristi materijale iz \cite{tadej}, to jest ulazni podaci te proces izrade mreže su preuzeti u potpunosti, ali je provjere kvalitete mreže radi čitkosti koda zanemarena. Konstruirana mreža sastoji se od elemenata s tri i četiri čvora sa šest stupnjeva slobode te koristimo ljuskaste elemente. U danom kodu ne zadajemo nikakve rubne uvjete za analizu ni opterećenja već puštamo liboofem-u da samo konstruira izlazne podatke koje ćemo vizualizirati pomoću ParaViewa. Vizualizacijom koda \ref{code:oofem_from_gmsh_cleaned} dobiva se slika \ref{fig:brodski_element}.
+
+\lstinputlisting[language=python, label={code:oofem_from_gmsh_cleaned}, caption={Konstrukcija mrežastog modela pomoću PyGmsh-a te učitavanje mreže u OOFEM putem liboofem-a}]{codes/oofem_from_gmsh_cleaned.py}
+
+\begin{figure}[h!t]
+\begin{center}
+\includegraphics[scale=0.3]{pictures/chapter_zadatak/brodski_element.png}
+\caption{Vizualizacija modela sastavljenog od ljuskastih elemenata s tri i četiri čvora pomoću ParaViewa nakon izrade mreže u PyGmsh-u i učitavanja u OOFEM }
+\label{fig:brodski_element}
+\end{center}
+\end{figure}
+
 \section{Dodatne mogućnosti biblioteke liboofem}
 Kao što smo bili napomenuli \textit{liboofem} u teoriji pruža mogućnost dohvaćanja svih objekata OOFEM-a iz C++-a putem Pythona. U nastavku dat ćemo jedan primjer s opisom kako dohvatiti još neke od zanimljivijih podataka.
 
