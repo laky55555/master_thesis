@@ -8,7 +8,7 @@
 
 % Stil je optimiziran za kreiranje pdf dokumenta (npr. pomocu pdflatex-a, XeLaTeX-a)
 
-\documentclass[a4paper,twoside,12pt]{memoir} % jednostrano: promijeniti twoside u oneside
+\documentclass[a4paper,oneside,12pt]{memoir} % jednostrano: promijeniti twoside u oneside
 
 % Paket inputenc omogucava direktno unosenje hrvatskih dijakritickih znakova 
 % opcija utf8 za unicode (unix, linux, mac)
@@ -434,6 +434,7 @@ Sada spajanjem matrica krutosti (\ref{eq:prosirena_k1}), (\ref{eq:prosirena_k2})
     K = K_1 + K_2 + K_3 \notag \\ 
     =
     \begin{bmatrix}
+    \label{eq:globalna_matrica_krutosti2}
     800000 & 0 & -800000 & 0 & 0 & 0 \\
     0 & 1385646.09 & 0 & 0 & 0 & -1385646.09 \\
     -800000 & 0 & 1385646.09 & 300000 & -519615 & -300000 \\
@@ -466,7 +467,7 @@ Sa slike \ref{fig:problem__not_noted} očitali smo da se pomaci mogu dogoditi sa
     \end{bmatrix}
 \end{equation}
 
-Sad se pomoću vektora opterećenja (\ref{eq:vektor_opterecenja}) i matrice krutosti (\ref{eq:globalna_matrica_krutosti}) računa vektor pomaka (\ref{eq:vektor_pomaka}) po formuli $F = K  u $. Uklanjanjem dijelova gdje nema pomaka dobivamo idući sustav jednadžbi:
+Sad se pomoću vektora opterećenja (\ref{eq:vektor_opterecenja}) i matrice krutosti (\ref{eq:globalna_matrica_krutosti2}) računa vektor pomaka (\ref{eq:vektor_pomaka}) po formuli $F = K  u $. Uklanjanjem dijelova gdje nema pomaka dobivamo idući sustav jednadžbi:
 \begin{equation}
 \label{eq:racunanje_pomaka}
     \begin{bmatrix}
@@ -474,9 +475,9 @@ Sad se pomoću vektora opterećenja (\ref{eq:vektor_opterecenja}) i matrice krut
     \end{bmatrix}
     =
     \begin{bmatrix}
-    1319615.48 \\ -519615 \\ -300000 \\
-    -519615 \\ 519615 \\ 300000 \\
-    -300000 \\ 300000 \\ 1558851.25 \\
+    1319615.48 & -519615 & -300000 \\
+    -519615 & 519615 & 300000 \\
+    -300000 & 300000 & 1558851.25 \\
     \end{bmatrix}
     \begin{bmatrix}
     u_{x2} \\ u_{x3} \\ u_{y3} \\
@@ -501,7 +502,7 @@ te sada cjeloviti vektor pomaka glasi:
     \end{bmatrix}
 \end{equation}
 
-Da bi odredili reakcije oslonaca množimo cjelovitu matricu krutosti (\ref{eq:globalna_matrica_krutosti}) s cjelovitim vektorom pomaka (\ref{eq:vektor_pomaka_cijeli}) $f = K  u$ i dobivamo
+Da bi odredili reakcije oslonaca množimo cjelovitu matricu krutosti (\ref{eq:globalna_matrica_krutosti2}) s cjelovitim vektorom pomaka (\ref{eq:vektor_pomaka_cijeli}) $f = K  u$ i dobivamo
 \begin{equation}
 \label{eq:reakcije_oslonaca}
     f =
